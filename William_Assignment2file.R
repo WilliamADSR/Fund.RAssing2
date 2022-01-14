@@ -35,7 +35,7 @@ head(heart)
           #NAP: Non-Anginal Pain, a type of chest pain that is not caused by heart disease or a heart attack
           #ASY: Asymptomatic, a type of chest pain that includes no chest pain but there is angina
 #Variable 4: RestingBP. It's a numeric variable representing patients' resting blood pressure (mmHg). The average blood pressure for an adult male is 120/80 mmHg. Average blood pressure increases when people get older. Furthermore, women's average blood pressure is mostly a little bit lower compared to males. A resting blood pressure > 140 is considered high and may cause heart failure.
-#Variable 5: Cholesterol. It's a numeric variable representing patients' cholesterol levels (mm / dl). A healthy adult has a cholesterol level lower than 200 mm / dl. High cholesterol levels (> 240) is unhealthy and therefore may cause heart failure.
+#Variable 5: Cholesterol. It's a numeric variable representing patients' cholesterol levels (mm / dl). A healthy adult has a cholesterol level lower than 200 mm / dl. High cholesterol levels (> 240) is moderate/high and therefore may cause heart failure.
 #Variable 6: FastingBS. It's a dichotomous variable representing patients' fasting blood sugar (mg / dl). Fasting blood sugar levels > 120 mg / dl are coded as a 1. Fasting blood sugar levels < 120 mg / dl are coded as a 0. High levels of blood sugar infer diabetes which may cause heart failure. 
 #Variable 7: RestingECG. It's a categorical variable which contains 3 different types of electric activity in the heart.
           #Normal: The heart is beating in a regular sinus rhythm at a normal pace. No danger whatsoever 
@@ -60,17 +60,31 @@ Clean_Heart <- heart[-c(294:416, 422,
                         454, 447), ]
 }
 
-#6. Descriptives (start)
+#6. Descriptives (histograms + boxplots + ...)
+
 Hist_age <- hist(Clean_Heart$Age)
-summary(Clean_heart$Age)
-#Age is distributed normally. The youngest observations is 28 years old and the oldest observation is 77 years old.
+Box_age <- boxplot(Clean_Heart$Age) + title(main = "Distribution of age", ylab = "Age in years")
+median(Clean_Heart$Age)
+#Age is distributed normally. The youngest observations is 28 years old and the oldest observation is 77 years old. The median of this data set is 54.
 
-Hist_chol <- hist(Clean_heart$Cholesterol)
-summary(Clean_heart$Cholesterol)
+Hist1_chol <- hist(heart$Cholesterol)
 #The Cholesterol variable has 172 observations of the number 0. This means there are 172 patients without data on cholesterol levels. Therefore these observations will be exluded from the dataset since a value of 0 on cholesterol levels is impossible. 
+Hist2_chol <- hist(Clean_Heart$Cholesterol)
+Box_chol <- boxplot(Clean_Heart$Cholesterol) + title(main = "Distribution of cholesterol levels", ylab = "Cholesterol levels (mm / dl)")
+min(Clean_Heart$Cholesterol)
+max(Clean_Heart$Cholesterol)
+median(Clean_Heart$Cholesterol)
+#Here we see that the distribution of cholesterol levels has several outliers. The median is a cholesterol level of 237 which is within the range of a healthy level. a The lowest level of cholesterol is 85 and the highest level of cholesterol is 603. When checking assumptions we will see whether we need to exclude more observations due to abnormal cholesterol levels.
 
+Hist_BPrest <- hist(Clean_Heart$RestingBP)
+Box_BPrest <- boxplot(Clean_Heart$RestingBP) + title(main = "Distribution of resting blood pressure levels", ylab = "Resting blood pressure levels (mmHg)")
+median(Clean_Heart$RestingBP)
+max(Clean_Heart$RestingBP)
+#Most of the observations have a healthy resting blood pressure, which the median of 130 also represents. There are some outliers past the maximum of the boxplot, the highest observations has a resting blood pressure of 200 which is very dangerous.
 
-#7. Building a model
+#7. Correlation Matrix
+
+#8. Building a mode
 Model1 <- glm(HeartDisease ~ Cholesterol, data = Clean_heart, family = "binomial")
 summary(Model1)
 
