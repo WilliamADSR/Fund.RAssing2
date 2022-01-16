@@ -1,0 +1,91 @@
+---
+title: "Logistic regression assignment, group 3"  
+author: Elizabeth Machkovska, Letícia Marçal Russo, Madio Seck, William Schaafsma 
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+       highlight: textmate
+       theme: flatly
+       number_sections: yes
+       toc: yes
+       toc_float:
+         collapsed: yes
+         smooth_scroll: no
+---
+
+# Context 
+
+
+# Packages
+```{r libraries, warning = FALSE, message = FALSE}
+library(ggplot2)
+
+```
+
+# Research question and relevance 
+
+
+# Dataset and variables
+
+# Inspecting the dataset and cleaning up
+
+## Missing values 
+## Looking for outliers
+
+# Descriptive analysis
+
+# Correlation 
+
+  
+# Set seed
+Setting seed to generate a reproducible result.
+```{r }
+set.seed(42)
+
+```
+
+# Best model
+
+# Comparing models
+
+# Cross Validation
+
+# Confusion Matrix
+
+# Visualization of the model 
+
+# Checking assumptions 
+
+## Residuals vs Fitted model
+
+## Normal Q-Q plot
+
+## Scale-Location 
+
+## Cook's distance
+
+## Residuals vs Leverage
+
+# Interpreting the final model
+
+# Answering the research question 
+
+# Discussion & Limitations
+
+
+# Sources
+
+Hastie, T., James, G., Tibshirani, R. & Witten, D. (2021). *An Introduction to Statistical Learning with Applications in R*. (2nd edition). Springer. Retrieved from https://hastie.su.domains/ISLR2/ISLRv2_website.pdf
+
+Haira, K. (2018, 17 May). *dplyr - advanced-joining* Retrieved from https://rpubs.com/KunalHaria/390063.
+
+Kassambara, A. (2018). Linear Regression Assumptions and Diagnostics in R: Essentials. In: *Statistical Tools for High-Throughput Data Analysis.* (1st edition). Retrieved from http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/#diagnostic-plots.
+
+Klein, A. G., Gerhard, C., Büchner, R. D., Diestel, S. & Schermelleh-Engel, K. (2016). The detection of heteroscedasticity in regression models for psychological data. *Psychological Test and Assessment Modeling, 58*(4), 542-568.
+
+Rousselet, G. A., & Wilcox, R. R. (2020). Reaction times and other skewed distributions: problems with the mean and the median. *Meta-Psychology, 4*. 
+https://doi.org/10.15626/MP.2019.1630
+
+
+
+
