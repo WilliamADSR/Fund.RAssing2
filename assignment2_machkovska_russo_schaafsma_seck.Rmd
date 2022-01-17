@@ -15,34 +15,38 @@ output:
 
 # Context 
 
-
 # Packages
 ```{r libraries, warning = FALSE, message = FALSE}
 library(ggplot2)
 library(readr)
 library(dbplyr)
-#library(tidyverse)
+library(tidyverse)
 library(magrittr)
 library(lattice)
+library(correlation)
+library(ggcorrplot)
+library(see)
 ```
 
 # Research question and relevance 
 
 
 # Loading the Dataset
-
+The data set is derived from Kaggle and is uploaded by fedesoriano (2021). With the following script a distinction is made between continuous (numeric) and categorical variables which are transformed to factor type data. 
 ```{r}
 heart <- read_csv("heart.csv", 
-                  col_types = cols(Age = col_number(), 
-                  RestingBP = col_number(),
-                  Cholesterol = col_number(), 
-                  FastingBS = col_double(), 
-                  RestingECG = col_character(),
-                  MaxHR = col_number(), 
-                  ExerciseAngina = col_character(),
-                  Oldpeak = col_number(),                   
-                  ST_Slope = col_character(), 
-                  HeartDisease = col_double()
+                  col_types = cols(Age = col_number(),
+                                   Sex = col_factor(),
+                                   ChestPainType = col_factor(),
+                                   RestingBP = col_number(),
+                                   Cholesterol = col_number(), 
+                                   FastingBS = col_factor(), 
+                                   RestingECG = col_factor(),
+                                   MaxHR = col_number(),
+                                   ExerciseAngina = col_factor(),
+                                   Oldpeak = col_number(),
+                                   ST_Slope = col_factor(), 
+                                   HeartDisease = col_factor()
                    )
                   )
 ```
@@ -204,8 +208,57 @@ max(Clean_Heart$RestingBP)
 Most of the observations have a healthy resting blood pressure, which the median of 130 also represents. There are some outliers past the maximum of the boxplot, the highest observations has a resting blood pressure of 200 which is very dangerous.
 
 # Correlation 
+The **easystats** package by Makowski and his colleagues (2019) is used to create the pairwise correlation matrix below. The long variable names are first shortened to make visualization neater. 
+```{r, message=FALSE, eval=FALSE}
+Clean_Heart$CPT <- Clean_Heart$ChestPainType
+Clean_Heart$R_BP <- Clean_Heart$RestingBP
+Clean_Heart$Chol <- Clean_Heart$Cholesterol
+Clean_Heart$F_BP <- Clean_Heart$FastingBS
+Clean_Heart$R_ECG <- Clean_Heart$RestingECG
+Clean_Heart$E_A <- Clean_Heart$ExerciseAngina
+Clean_Heart$O_P <- Clean_Heart$Oldpeak
+Clean_Heart$ST_S <- Clean_Heart$ST_Slope
+Clean_Heart$H_D <- Clean_Heart$HeartDisease
 
-  
+ch_select <- select(Clean_Heart, c(1, 2, 8, 13:21))
+
+cor <- correlation(ch_select, include_factors = TRUE, method = "auto")
+
+cor %>%
+  summary() %>%
+  plot(show_labels=TRUE,
+       show_p=TRUE,
+       size_point=5,
+       size_text=5,
+       digits=2,
+       type="tile",
+       )
+
+```
+
+A close-up of the ![correlation matrix](D:/JAAR 4/ADS1/Fund.RAssing2/correlation_matrix.png) 
+
+Three methods of correlation were used
+1. Point-biserial correlation
+2. Pearson correlation
+3. Tetrachoric correlation
+    + In the case of tetrachorics, or dichotomous data, cells with zero counts are replaced with 0.5 as a correction for continuity.
+
+Correlation between continuous predictor variables and dichotomous categorical outcome variable is calculated using the *Point-biserial correlation*. 
+```{r, message=FALSE}
+ch_select %>%
+  select(Age, R_BP, Chol, MaxHR, O_P, H_D) %>% 
+  correlation(include_factors = TRUE, method = "auto") %>%
+  summary() %>%
+    plot(show_labels=TRUE,
+       show_p=TRUE,
+       size_point=2,
+       size_text=3,
+       digits=2,
+       type="tile",
+       )
+```
+
 # Set seed
 Setting seed to generate a reproducible result.
 ```{r }
@@ -259,6 +312,7 @@ Comment here.
 
 
 # Sources
+fedesoriano. (2021, September). *Heart Failure Prediction Dataset.* [Data set] Retrieved from https://www.kaggle.com/fedesoriano/heart-failure-prediction.
 
 Hastie, T., James, G., Tibshirani, R. & Witten, D. (2021). *An Introduction to Statistical Learning with Applications in R*. (2nd edition). Springer. Retrieved from https://hastie.su.domains/ISLR2/ISLRv2_website.pdf
 
@@ -267,6 +321,8 @@ Haira, K. (2018, 17 May). *dplyr - advanced-joining* Retrieved from https://rpub
 Kassambara, A. (2018). Linear Regression Assumptions and Diagnostics in R: Essentials. In: *Statistical Tools for High-Throughput Data Analysis.* (1st edition). Retrieved from http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/#diagnostic-plots.
 
 Klein, A. G., Gerhard, C., Büchner, R. D., Diestel, S. & Schermelleh-Engel, K. (2016). The detection of heteroscedasticity in regression models for psychological data. *Psychological Test and Assessment Modeling, 58*(4), 542-568.
+
+Makowski, D., Ben-Shachar, M. S., Patil, I., & Lüdecke, D. (2019). Methods and Algorithms for Correlation Analysis in R. *Journal of Open Source Software, 5*(51), 2306. https://doi.org/10.21105/joss.02306
 
 Rousselet, G. A., & Wilcox, R. R. (2020). Reaction times and other skewed distributions: problems with the mean and the median. *Meta-Psychology, 4*. 
 https://doi.org/10.15626/MP.2019.1630
