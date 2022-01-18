@@ -261,8 +261,9 @@ cor %>%
 ![The full correlation matrix](D:/JAAR 4/ADS1/Fund.RAssing2/correlation_matrix.png) 
 
 Three methods of calculating the correlation coefficient were used, as seen in the ![image](D:/JAAR 4/ADS1/Fund.RAssing2/example_cor.png)
+
 ```{r}
-cor[59:69, ]
+#cor[59:69, ]
 ```
 
 Those methods are
@@ -295,7 +296,7 @@ When comparing the coefficients for the observations of patients with a heart di
 From continuous predictor variables the values of cholesterol (*Chol*) have insignificant negligible association with both the heart disease and other numeric predictors. 
 
 *Tetrachoric* correlation is a measure of the correlation between a pair of dichotomous variables. The coefficient is calculated for each separate class of a categorical variable.
-```{r, message=FALSE, eval=FALSE}
+```{r, message=FALSE}
 train_select %>%
   select(CPT, R_ECG, ST_S, H_D) %>% 
   correlation(include_factors = TRUE, method = "auto") %>%
@@ -313,7 +314,7 @@ For the categories of the slope of peak exercise (*ST_S*) there is a very strong
 
 The correlation matrix per binary predictor and outcome variables is visualized in the ![image](D:/JAAR 4/ADS1/Fund.RAssing2/cor_matrix_binary.png)
 
-```{r, message=FALSE, eval=FALSE}
+```{r, message=FALSE}
 train_select %>%
   select(Sex, F_BP, E_A, H_D) %>% 
   correlation(include_factors = TRUE, method = "auto") %>%
