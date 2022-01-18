@@ -18,6 +18,7 @@ output:
 # Packages
 ```{r libraries, warning = FALSE, message = FALSE}
 library(ggplot2)
+library(GGally)
 library(readr)
 library(dbplyr)
 library(tidyverse)
@@ -26,6 +27,8 @@ library(lattice)
 library(correlation)
 library(ggcorrplot)
 library(see)
+library(caret)
+library(psych)
 ```
 
 # Research question and relevance 
@@ -49,6 +52,10 @@ heart <- read_csv("heart.csv",
                                    HeartDisease = col_factor()
                    )
                   )
+heart$FastingBS <- factor(heart$FastingBS,
+                                labels = c("B120", "A120"))
+heart$HeartDisease <- factor(heart$HeartDisease,
+                                labels = c("Norm", "Prob"))
 ```
 
 # Explanation of the variables
@@ -207,22 +214,38 @@ max(Clean_Heart$RestingBP)
 
 Most of the observations have a healthy resting blood pressure, which the median of 130 also represents. There are some outliers past the maximum of the boxplot, the highest observations has a resting blood pressure of 200 which is very dangerous.
 
+#Split the data into training and test samples
+In the training data set 80% (p=0.8) of the rows were generated as a new sample. Out of 597 observations 52% has normal heart performance (312 rows) and 48% has heart problems (285 rows). Therefore, the training data has approximately equal distribution of classes within response variable. 
+```{r}
+set.seed(42)
+trainDataIndex <- createDataPartition(Clean_Heart$HeartDisease, p=0.8, list = FALSE)  
+train_heart <- Clean_Heart[trainDataIndex, ]
+test_heart <- Clean_Heart[-trainDataIndex, ]
+
+table(train_heart$HeartDisease)
+```
+
 # Correlation 
-The **easystats** package by Makowski and his colleagues (2019) is used to create the pairwise correlation matrix below. The long variable names are first shortened to make visualization neater. 
+
+The **easystats** package by Makowski and his colleagues (2019) is used to create the pairwise correlation matrix. The long variable names are first shortened to make visualization neater. 
+```{r}
+train_heart$CPT <- train_heart$ChestPainType
+train_heart$R_BP <- train_heart$RestingBP
+train_heart$Chol <- train_heart$Cholesterol
+train_heart$F_BP <- train_heart$FastingBS
+train_heart$R_ECG <- train_heart$RestingECG
+train_heart$E_A <- train_heart$ExerciseAngina
+train_heart$O_P <- train_heart$Oldpeak
+train_heart$ST_S <- train_heart$ST_Slope
+train_heart$H_D <- train_heart$HeartDisease
+
+train_select <- select(train_heart, c(1, 2, 8, 13:21))
+```
+
+This function allows to use different methods, including correlation between factors. 
 ```{r, message=FALSE, eval=FALSE}
-Clean_Heart$CPT <- Clean_Heart$ChestPainType
-Clean_Heart$R_BP <- Clean_Heart$RestingBP
-Clean_Heart$Chol <- Clean_Heart$Cholesterol
-Clean_Heart$F_BP <- Clean_Heart$FastingBS
-Clean_Heart$R_ECG <- Clean_Heart$RestingECG
-Clean_Heart$E_A <- Clean_Heart$ExerciseAngina
-Clean_Heart$O_P <- Clean_Heart$Oldpeak
-Clean_Heart$ST_S <- Clean_Heart$ST_Slope
-Clean_Heart$H_D <- Clean_Heart$HeartDisease
 
-ch_select <- select(Clean_Heart, c(1, 2, 8, 13:21))
-
-cor <- correlation(ch_select, include_factors = TRUE, method = "auto")
+cor <- correlation(train_select, include_factors = TRUE, method = "auto")
 
 cor %>%
   summary() %>%
@@ -233,21 +256,48 @@ cor %>%
        digits=2,
        type="tile",
        )
-
 ```
 
-A close-up of the ![correlation matrix](D:/JAAR 4/ADS1/Fund.RAssing2/correlation_matrix.png) 
+![The full correlation matrix](D:/JAAR 4/ADS1/Fund.RAssing2/correlation_matrix.png) 
 
-Three methods of correlation were used
+Three methods of calculating the correlation coefficient were used, as seen in the ![image](D:/JAAR 4/ADS1/Fund.RAssing2/example_cor.png)
+```{r}
+cor[59:69, ]
+```
+
+Those methods are
+
 1. Point-biserial correlation
-2. Pearson correlation
-3. Tetrachoric correlation
-    + In the case of tetrachorics, or dichotomous data, cells with zero counts are replaced with 0.5 as a correction for continuity.
 
-Correlation between continuous predictor variables and dichotomous categorical outcome variable is calculated using the *Point-biserial correlation*. 
+2. Pearson correlation
+
+3. Tetrachoric correlation
+In the case of tetrachorics, when both observed variables are dichotomous, cells with zero counts are replaced with 0.5 as a correction for continuity.
+
+The next figures provide a close up of the correlation coefficients between pairs of variables.
+
+Correlation between continuous predictor variables and dichotomous categorical outcome variable is calculated using the *Point-biserial* correlation. The relationship between continuous predictors is measured using *Pearson*. 
 ```{r, message=FALSE}
-ch_select %>%
+train_select %>%
   select(Age, R_BP, Chol, MaxHR, O_P, H_D) %>% 
+  correlation(include_factors = TRUE, method = "auto") %>%
+  summary() %>%
+    plot(show_labels=TRUE,
+       show_p=TRUE,
+       size_point=5,
+       size_text=4,
+       digits=2,
+       type="tile",
+       )
+```
+
+When comparing the coefficients for the observations of patients with a heart disease (*H_D.Prob*), in order from strongest to weakest association, there is a significant strong positive relationship between oldpeak, which means that the higher the value of *O_P*, the more often a heart problem occurs. Relationship between *MaxHR* and heart disease is moderately negative, which suggests that the higher the maximum heart rate achieved the less heart problems are observed. Both *Oldpeak* and *MaxHR* have a moderate strength of a relationship with *Age*. In turn, *Age* has a moderate positive relationship with heart problems, meaning that the older the patients observed, the more often they have a heart disease detected. Association between resting blood pressure (*R_BP*) is weak and positive. The relationships have a reverse direction when comparing the values for a normal heart (*H_D.Norm*). 
+From continuous predictor variables the values of cholesterol (*Chol*) have insignificant negligible association with both the heart disease and other numeric predictors. 
+
+*Tetrachoric* correlation is a measure of the correlation between a pair of dichotomous variables. The coefficient is calculated for each separate class of a categorical variable.
+```{r, message=FALSE, eval=FALSE}
+train_select %>%
+  select(CPT, R_ECG, ST_S, H_D) %>% 
   correlation(include_factors = TRUE, method = "auto") %>%
   summary() %>%
     plot(show_labels=TRUE,
@@ -258,6 +308,26 @@ ch_select %>%
        type="tile",
        )
 ```
+
+For the categories of the slope of peak exercise (*ST_S*) there is a very strong negative association between up slopping peaks in contrast to the (very) strong positive relationship of the flattening and downwards slopes in relation to the number heart diseases observed.Three out of four chest pain types (*CPT*) have a negative relationship with heart problems variable varying from strong (*CPT.ATA*) to moderate (*CPT.NAP*) to weak, whereas asymptomatic CPT (*CPT.ASY*) has a very strong positive relationship. Association with *CPT.TA* is less significant (and is relatively weak) compared to the other chest pain types. Out of three types of resting ECG results (*R_ECG*) normal results (*Normal*) have negative relationship with the heart problems, whereas the 'abnormal' ones have a positive relationship with heart problems. In case of more normal observations of *R_ECG*, there are less heart diseases observed. 
+
+The correlation matrix per binary predictor and outcome variables is visualized in the ![image](D:/JAAR 4/ADS1/Fund.RAssing2/cor_matrix_binary.png)
+
+```{r, message=FALSE, eval=FALSE}
+train_select %>%
+  select(Sex, F_BP, E_A, H_D) %>% 
+  correlation(include_factors = TRUE, method = "auto") %>%
+  summary() %>%
+    plot(show_labels=TRUE,
+       show_p=TRUE,
+       size_point=4,
+       size_text=4,
+       digits=2,
+       type="tile",
+       )
+```
+
+The observations of angina induced by exercise (*E_A.Y*) correlate strongly and positively with the heart disease. Fasting blood sugar above 120 mg/dl (*F_BP.A120*) has a moderate positive relationship with the outcome variable. Gender (*Sex*) seems to have a strong relationship with the heart disease observations, however, interpretation of direction of this association is not meaningful. 
 
 # Set seed
 Setting seed to generate a reproducible result.
