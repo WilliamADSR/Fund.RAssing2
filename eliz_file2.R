@@ -47,14 +47,18 @@ trainDataIndex <- createDataPartition(Clean_Heart$HeartDisease, p=0.8, list = FA
 train_heart <- Clean_Heart[trainDataIndex, ]
 test_heart <- Clean_Heart[-trainDataIndex, ]
 
-barplot(table(train_heart$HeartDisease, train_heart$Sex), col = c("green","red"))
-legend("topright", c("Normal","Problem"), fill = c("green","red"))
+library(rcompanion)
 
 tsex <- table(train_heart$HeartDisease, train_heart$Sex)
-tsex
 tsexp <- scale(tsex, FALSE, colSums(tsex)) * 100
-tsexp
 
-bp <- barplot(tsexp, beside = TRUE, col = c("green","red"), ylim=c(0,100))
+bp_sex <- barplot(tsexp, beside = TRUE, col = c("green","red"), ylab="Frequency (%)", ylim=c(0,100))
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
-text(bp, 0, round(tsexp, 0), cex = 1, pos = 3)
+text(bp_sex, 0, round(tsexp, 0), cex = 1, pos = 3)
+
+cramerV(train_heart$Sex, train_heart$HeartDisease)
+
+library(greybox)
+print(assoc(train_heart), digits=2)
+
+assoc_values <- assoc(train_heart)
