@@ -332,44 +332,68 @@ The observations of angina induced by exercise (*E_A.Y*) correlate strongly and 
 
 !!!To find the importance of a categorical variable, instead of correlation looking at how often a heart disease is detected per category. Compared to correlation matrices, types which have heart disease more often have a strong relationship coefficient. 
 ```{r}
-barplot(table(train_heart$HeartDisease, train_heart$Sex), col = c("green","red"))
+tsex <- table(train_heart$HeartDisease, train_heart$Sex)
+tsexp <- scale(tsex, FALSE, colSums(tsex)) * 100
+
+bp_sex <- barplot(tsexp, beside = TRUE, col = c("green","red"), ylab="Frequency (%)", ylim=c(0,100))
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
+text(bp_sex, 0, round(tsexp, 0), cex = 1, pos = 3)
 ```
-In this data set men have heart problems more often than women. 
+In this data set men have heart problems more often than women (56% versus 23%). 
 
 ```{r}
-barplot(table(train_heart$HeartDisease, train_heart$ChestPainType), col = c("green","red"))
+tCPT <- table(train_heart$HeartDisease, train_heart$ChestPainType)
+tCPTp <- scale(tCPT, FALSE, colSums(tCPT)) * 100
+
+bp_CPT <- barplot(tCPTp, beside = TRUE, col = c("green","red"), ylab="Frequency (%)", ylim=c(0,100))
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
+text(bp_CPT, 0, round(tCPTp, 0), cex = 1, pos = 3)
 ```
-In this data set asymptomatic chest pain type has relatively more cases which have heart concerns. 
+In this data set asymptomatic chest pain type has relatively more cases which have heart concerns (73%). 
 
 ```{r}
-barplot(table(train_heart$HeartDisease, train_heart$FastingBS), col = c("green","red"))
+tFBS <- table(train_heart$HeartDisease, train_heart$FastingBS)
+tFBSp <- scale(tFBS, FALSE, colSums(tFBS)) * 100
+
+bp_FBS <- barplot(tFBSp, beside = TRUE, col = c("green","red"), ylab="Frequency (%)", ylim=c(0,100))
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
+text(bp_FBS, 0, round(tFBSp, 0), cex = 1, pos = 3)
 ```
-Patients with blood sugar above 120 mg/dl have heart disease relatively more often then not. 
-However, blood sugar below 120 mg/dl has relatively small difference between the diagnosis
-. This is reflected in moderate relationship coefficient. 
+Patients with blood sugar above 120 mg/dl have heart disease relatively more often (64% versus 44%). 
 
 ```{r}
-barplot(table(train_heart$HeartDisease, train_heart$RestingECG), col = c("green","red"))
+tRECG <- table(train_heart$HeartDisease, train_heart$RestingECG)
+tREp <- scale(tRECG, FALSE, colSums(tRECG)) * 100
+
+bp_RE <- barplot(tREp, beside = TRUE, col = c("green","red"), ylab="Frequency (%)", ylim=c(0,100))
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
+text(bp_RE, 0, round(tREp, 0), cex = 1, pos = 3)
 ```
-ST and LVH results have relatively more cases with heart problems diagnosed. This variable has a weak relationship with the outcome. 
+ST and LVH results have more than a half cases with heart problems diagnosed. 
+The differences between classes are relatively small, so it can be assumed that the assciation is weak. 
 
 ```{r}
-barplot(table(train_heart$HeartDisease, train_heart$ExerciseAngina), col = c("green","red"))
-legend("topright", c("Normal","Problem"), fill = c("green","red"))
+tEA <- table(train_heart$HeartDisease, train_heart$ExerciseAngina)
+tEAp <- scale(tEA, FALSE, colSums(tEA)) * 100
+
+bp_EA <- barplot(tEAp, beside = TRUE, col = c("green","red"), ylab="Frequency (%)", ylim=c(0,100))
+legend("top", c("Normal","Problem"), fill = c("green","red"))
+text(bp_EA, 0, round(tEAp, 0), cex = 1, pos = 3)
 ```
 
-Patients with angina induced by exercise have heart disease more often. 
+Patients with angina induced by exercise have heart disease relatively more often (83% versus 26%). 
+Here the differences are large, so there might be a strong relationship between *ExerciseAngina* and *HeartDisease*. 
 
 ```{r}
-barplot(table(train_heart$HeartDisease, train_heart$ST_Slope), col = c("green","red"))
+tST <- table(train_heart$HeartDisease, train_heart$ST_Slope)
+tSTp <- scale(tST, FALSE, colSums(tST)) * 100
+
+bp_ST <- barplot(tSTp, beside = TRUE, col = c("green","red"), ylab="Frequency (%)", ylim=c(0,100))
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
+text(bp_ST, 0, round(tSTp, 0), cex = 1, pos = 3)
 ```
 
-The number of patients with heart problems is largest for cases with the flat and down slopes observed.
+The number of patients with heart problems is largest for cases with the flat and down slopes observed, over the three quarters. As the differences between these categories of slopes are large, this suggests a strong relation with the outcome variable. 
 
 # Set seed
 Setting seed to generate a reproducible result.
