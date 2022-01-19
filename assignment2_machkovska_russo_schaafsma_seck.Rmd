@@ -330,6 +330,47 @@ train_select %>%
 
 The observations of angina induced by exercise (*E_A.Y*) correlate strongly and positively with the heart disease. Fasting blood sugar above 120 mg/dl (*F_BP.A120*) has a moderate positive relationship with the outcome variable. Gender (*Sex*) seems to have a strong relationship with the heart disease observations, however, interpretation of direction of this association is not meaningful. 
 
+!!!To find the importance of a categorical variable, instead of correlation looking at how often a heart disease is detected per category. Compared to correlation matrices, types which have heart disease more often have a strong relationship coefficient. 
+```{r}
+barplot(table(train_heart$HeartDisease, train_heart$Sex), col = c("green","red"))
+legend("topright", c("Normal","Problem"), fill = c("green","red"))
+```
+In this data set men have heart problems more often than women. 
+
+```{r}
+barplot(table(train_heart$HeartDisease, train_heart$ChestPainType), col = c("green","red"))
+legend("topright", c("Normal","Problem"), fill = c("green","red"))
+```
+In this data set asymptomatic chest pain type has relatively more cases which have heart concerns. 
+
+```{r}
+barplot(table(train_heart$HeartDisease, train_heart$FastingBS), col = c("green","red"))
+legend("topright", c("Normal","Problem"), fill = c("green","red"))
+```
+Patients with blood sugar above 120 mg/dl have heart disease relatively more often then not. 
+However, blood sugar below 120 mg/dl has relatively small difference between the diagnosis
+. This is reflected in moderate relationship coefficient. 
+
+```{r}
+barplot(table(train_heart$HeartDisease, train_heart$RestingECG), col = c("green","red"))
+legend("topright", c("Normal","Problem"), fill = c("green","red"))
+```
+ST and LVH results have relatively more cases with heart problems diagnosed. This variable has a weak relationship with the outcome. 
+
+```{r}
+barplot(table(train_heart$HeartDisease, train_heart$ExerciseAngina), col = c("green","red"))
+legend("topright", c("Normal","Problem"), fill = c("green","red"))
+```
+
+Patients with angina induced by exercise have heart disease more often. 
+
+```{r}
+barplot(table(train_heart$HeartDisease, train_heart$ST_Slope), col = c("green","red"))
+legend("topright", c("Normal","Problem"), fill = c("green","red"))
+```
+
+The number of patients with heart problems is largest for cases with the flat and down slopes observed.
+
 # Set seed
 Setting seed to generate a reproducible result.
 ```{r }
