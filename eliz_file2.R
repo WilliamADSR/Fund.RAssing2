@@ -62,3 +62,4 @@ library(greybox)
 print(assoc(train_heart), digits=2)
 
 assoc_values <- assoc(train_heart)
+print(assoc_values, digits = 2)
