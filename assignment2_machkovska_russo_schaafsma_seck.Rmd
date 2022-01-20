@@ -30,6 +30,7 @@ library(see)
 library(caret)
 library(greybox)
 library(summarytools)
+library(DAAG)
 ```
 
 # Research question and relevance 
@@ -457,17 +458,18 @@ train_heart %$%
 
 The number of patients with heart problems is largest for cases with the flat and down slopes observed, over the three quarters. As the differences between these categories of slopes are large, this suggests a strong relation with the outcome variable. 
 
-# Set seed
-Setting seed to generate a reproducible result.
+# Model building
+
+Comment here.
+
+## Simple logistic regression
+
 ```{r }
 set.seed(42)
 
 ```
 
-# Model building
-
-Comment here.
-
+### Age
 ```{r}
 model_age <- glm(HeartDisease ~ Age, 
               data = train_heart, 
@@ -475,14 +477,105 @@ model_age <- glm(HeartDisease ~ Age,
 
 summary(model_age)
 ```
-
-Comment here.
-
+### Old peak
 ```{r}
-#summary(Model1)
+model_oldpeak <- glm(HeartDisease ~ Oldpeak, 
+              data = train_heart, 
+              family = "binomial")
+
+summary(model_oldpeak)
+```
+### Max HR
+```{r}
+model_maxhr <- glm(HeartDisease ~ MaxHR, 
+              data = train_heart, 
+              family = "binomial")
+
+summary(model_maxhr)
+```
+### ST_Slope
+```{r}
+model_stslope <- glm(HeartDisease ~ ST_Slope, 
+              data = train_heart, 
+              family = "binomial")
+
+summary(model_stslope)
+```
+### ExerciseAngima
+```{r}
+model_angina <- glm(HeartDisease ~ ExerciseAngina, 
+              data = train_heart, 
+              family = "binomial")
+
+summary(model_angina)
 ```
 
+## Multiple logistic regression
 
+```{r}
+fit1 <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope, 
+              data = train_heart, 
+              family = "binomial")
+
+summary(fit1)
+```
+```{r}
+fit2 <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak, 
+              data = train_heart, 
+              family = "binomial")
+
+summary(fit2)
+```
+```{r}
+fit3 <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak
+                           + Age, 
+              data = train_heart, 
+              family = "binomial")
+
+summary(fit3)
+```
+# Model comparison - additive
+
+## Change in deviance
+
+Testing the change in deviance
+```{r}
+anova(fit1, fit2, fit3, test = "Chisq") 
+```
+## Information criteria
+Comparing information criteria.
+```{r}
+AIC(fit1, fit2, fit3)
+```
+```{r}
+BIC(fit1, fit2, fit3)
+```
+## Cross-validation
+```{r}
+set.seed(42)
+cross1 <- CVbinary(fit1, nfolds = 10)
+```
+
+```{r}
+set.seed(42)
+cross2 <- CVbinary(fit2, nfolds = 10)
+```
+
+```{r}
+set.seed(42)
+cross3 <- CVbinary(fit3, nfolds = 10)
+```
+```{r}
+c(fit1 = cross1$acc.cv, fit2 = cross2$acc.cv, fit3 = cross3$acc.cv)
+```
 
 # Comparing models
 
