@@ -138,18 +138,18 @@ str(heart)
 Comment here.
 
 ```{r}
-Hist_age <- hist(Clean_Heart$Age)
+Hist_age <- hist(heart$Age)
 ```
 
 This is not working. Check why.
 ```{r}
-#Box_age <- boxplot(Clean_Heart$Age) + title(main = "Distribution of age", ylab = "Age in years")
+#Box_age <- boxplot(heart$Age) + title(main = "Distribution of age", ylab = "Age in years")
 ```
 
 Comment here.
 
 ```{r}
-median(Clean_Heart$Age)
+median(heart$Age)
 ```
 
 Age is distributed normally. The youngest observations is 28 years old and the oldest observation is 77 years old. The median of this data set is 54.
@@ -163,28 +163,28 @@ In the next topic, we will make a decision about how to deal with that.
 
 
 ```{r}
-#Box_chol <- boxplot(Clean_Heart$Cholesterol) 
+#Box_chol <- boxplot(heart$Cholesterol) 
 #            + title(main = "Distribution of cholesterol levels", 
 #                    ylab = "Cholesterol levels (mm / dl)")
 ```
 Comment here.
 
 ```{r}
-min(Clean_Heart$Cholesterol)
-max(Clean_Heart$Cholesterol)
-median(Clean_Heart$Cholesterol)
+min(heart$Cholesterol)
+max(heart$Cholesterol)
+median(heart$Cholesterol)
 ```
 
 Here we see that the distribution of cholesterol levels has several outliers. The median is a cholesterol level of 237 which is within the range of a healthy level. a The lowest level of cholesterol is 85 and the highest level of cholesterol is 603. When checking assumptions we will see whether we need to exclude more observations due to abnormal cholesterol levels.
 
 ```{r}
-Hist_BPrest <- hist(Clean_Heart$RestingBP)
+Hist_BPrest <- hist(heart$RestingBP)
 ```
 
 Comment here.
 
 ```{r}
-#Box_BPrest <- boxplot(Clean_Heart$RestingBP) 
+#Box_BPrest <- boxplot(heart$RestingBP) 
 #                 + title(main = "Distribution of resting blood pressure levels", 
 #                         ylab = "Resting blood pressure levels (mmHg)")
 ```
@@ -192,9 +192,9 @@ Comment here.
 Comment here.
 
 ```{r}
-median(Clean_Heart$RestingBP)
+median(heart$RestingBP)
 
-max(Clean_Heart$RestingBP)
+max(heart$RestingBP)
 ```
 
 Most of the observations have a healthy resting blood pressure, which the median of 130 also represents. There are some outliers past the maximum of the boxplot, the highest observations has a resting blood pressure of 200 which is very dangerous.
@@ -599,7 +599,131 @@ cross3 <- CVbinary(fit3, nfolds = 10)
 c(fit1 = cross1$acc.cv, fit2 = cross2$acc.cv, fit3 = cross3$acc.cv)
 ```
 
-# Comparing models
+# Model comparison - interaction
+Now we have chosen the best additive model, we will add interactions to try to improve it. 
+
+```{r}
+fit5 <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak
+                           + ExerciseAngina * MaxHR,
+              data = train_heart, 
+              family = "binomial")
+
+summary(fit5)
+```
+```{r}
+fit6 <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak
+                           + ExerciseAngina * ST_Slope,
+              data = train_heart, 
+              family = "binomial")
+
+summary(fit6)
+```
+```{r}
+fit7 <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak
+                           + ExerciseAngina * Oldpeak,
+              data = train_heart, 
+              family = "binomial")
+
+summary(fit7)
+```
+
+```{r}
+fit7 <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak
+                           + MaxHR * ST_Slope,
+              data = train_heart, 
+              family = "binomial")
+
+summary(fit7)
+```
+
+```{r}
+fit8 <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak
+                           + MaxHR * Oldpeak,
+              data = train_heart, 
+              family = "binomial")
+
+summary(fit8)
+```
+
+
+```{r}
+fit9 <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak
+                           + ST_Slope * Oldpeak,
+              data = train_heart, 
+              family = "binomial")
+
+summary(fit9)
+```
+
+```{r}
+fit10 <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak
+                           + ST_Slope * Oldpeak
+                           + ExerciseAngina * Oldpeak,
+              data = train_heart, 
+              family = "binomial")
+
+summary(fit10)
+```
+
+
+```{r}
+fit11 <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak
+                           + ExerciseAngina * MaxHR
+                           + ExerciseAngina * ST_Slope
+                           + ExerciseAngina * Oldpeak
+                           + MaxHR * ST_Slope
+                           + MaxHR * Oldpeak
+                           + ST_Slope * Oldpeak,
+              data = train_heart, 
+              family = "binomial")
+
+summary(fit11)
+```
+
+## Change in deviance
+
+```{r}
+anova(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11,
+                                  test = "Chisq") 
+```
+## Information criteria
+
+```{r}
+AIC(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11)
+```
+```{r}
+BIC(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11)
+```
+## Cross Validation
+
+```{r}
+set.seed(42)
+cross5 <- CVbinary(fit5, nfolds = 10)
+```
 
 # Cross Validation
 
