@@ -458,9 +458,13 @@ train_heart %$%
 
 The number of patients with heart problems is largest for cases with the flat and down slopes observed, over the three quarters. As the differences between these categories of slopes are large, this suggests a strong relation with the outcome variable. 
 
+## Summing up correlation results
+
+After the exploration made above, we concluded that *ExerciseAngina*, *ST_Slope*, *MaxHR*, *Oldpeak*, *Age* and *MaxHR* are the variables that show strongest correlation with our outcome variable, *HeartDisease*. Therefore, we are going to look for the best model from these variables. 
+
 # Model building
 
-Comment here.
+Starting with only one predictor, to explore how the variables behave ina simple model. 
 
 ## Simple logistic regression
 
@@ -514,18 +518,17 @@ summary(model_angina)
 
 ```{r}
 fit1 <- glm(HeartDisease ~ ExerciseAngina
-                           + MaxHR 
-                           + ST_Slope, 
+                           + MaxHR, 
               data = train_heart, 
               family = "binomial")
 
 summary(fit1)
 ```
+
 ```{r}
 fit2 <- glm(HeartDisease ~ ExerciseAngina
                            + MaxHR 
-                           + ST_Slope
-                           + Oldpeak, 
+                           + ST_Slope, 
               data = train_heart, 
               family = "binomial")
 
@@ -535,30 +538,48 @@ summary(fit2)
 fit3 <- glm(HeartDisease ~ ExerciseAngina
                            + MaxHR 
                            + ST_Slope
-                           + Oldpeak
-                           + Age, 
+                           + Oldpeak, 
               data = train_heart, 
               family = "binomial")
 
 summary(fit3)
 ```
+```{r}
+fit4 <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak
+                           + Age, 
+              data = train_heart, 
+              family = "binomial")
+
+summary(fit4)
+```
+
 # Model comparison - additive
 
 ## Change in deviance
 
 Testing the change in deviance
+The improvement is clear until the model 3, when the deviance decreases significantly. Model 4 shows a small decrease in the deviance, but it is doubtful whether it is worth complicating the model by so little improvement.
+We will test for information criteria in the next section - a measurement that penalizes the addition of new predictors - to get better insights about that.
 ```{r}
-anova(fit1, fit2, fit3, test = "Chisq") 
+anova(fit1, fit2, fit3, fit4, test = "Chisq") 
 ```
 ## Information criteria
 Comparing information criteria.
+
+The second model has an improvement comparing to the first one, as the AIC dropped off. The information criteria, however, increased again in the third model, making clear that the variable age does not worth to added and, therefore, second model is the best one. 
 ```{r}
-AIC(fit1, fit2, fit3)
+AIC(fit1, fit2, fit3, fit4)
 ```
+BIC follows the same narrative as AIC. 
 ```{r}
 BIC(fit1, fit2, fit3)
 ```
 ## Cross-validation
+
+Not working. I will check later how to fix it. 
 ```{r}
 set.seed(42)
 cross1 <- CVbinary(fit1, nfolds = 10)
@@ -573,6 +594,7 @@ cross2 <- CVbinary(fit2, nfolds = 10)
 set.seed(42)
 cross3 <- CVbinary(fit3, nfolds = 10)
 ```
+
 ```{r}
 c(fit1 = cross1$acc.cv, fit2 = cross2$acc.cv, fit3 = cross3$acc.cv)
 ```
@@ -582,6 +604,19 @@ c(fit1 = cross1$acc.cv, fit2 = cross2$acc.cv, fit3 = cross3$acc.cv)
 # Cross Validation
 
 # Confusion Matrix
+
+```{r}
+probab <- predict(fit3, newdata = train_heart, type = "response")
+
+class <- ifelse(probab > 0.5, "Prob", "Norm") %>% factor()
+
+table(class)
+```
+
+```{r}
+confusionMatrix(class, reference = train_heart$HeartDisease)
+```
+
 
 # Visualization of the model 
 
