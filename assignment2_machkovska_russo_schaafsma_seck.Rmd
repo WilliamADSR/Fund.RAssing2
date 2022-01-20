@@ -29,6 +29,7 @@ library(ggcorrplot)
 library(see)
 library(caret)
 library(greybox)
+library(summarytools)
 ```
 
 # Research question and relevance 
@@ -60,7 +61,7 @@ heart$HeartDisease <- factor(heart$HeartDisease,
 
 # Explanation of the variables
 
-This data set holds 12 variables of which HeartDisease is our dichotomous outcome variable. A futher elaboration on the variables follows:
+This data set holds 12 variables of which **Heart disease** is our dichotomous outcome variable. A futher elaboration on the variables follows:
 
 **Variable 1**: *Age*. It's a numeric variable of the patients' age expressed in years.  
   
@@ -113,11 +114,14 @@ This data set holds 12 variables of which HeartDisease is our dichotomous outcom
 
 # Inspecting the dataset and cleaning up
 
+add information like:
+* number of observations
+
 ```{r} 
 head(heart) %>% 
   knitr::kable(format = "markdown", digits= 1, padding = 30, align = 'c')
 ```
-Comment here. 
+Apparently, none of the variables have missing values, but we will get more insights in the descriptive analysis.
 
 ```{r}
 summary(heart)
@@ -126,22 +130,6 @@ Comment here
 
 ```{r}
 str(heart)
-```
-
-## Exluding Missing values (cholesterol)
-
-Comment here.
-
-```{r}
-Clean_Heart <- heart[-c(294:416, 422, 
-                        424:425, 428:431, 
-                        435:443, 536:537, 
-                        519, 515:516, 509, 
-                        493, 484:485, 480:482,
-                        478, 475:476, 471:473,
-                        467:468, 464:465,
-                        462, 456:460, 450:452,
-                        454, 447), ]
 ```
 
 # Descriptive analysis
@@ -169,13 +157,9 @@ Age is distributed normally. The youngest observations is 28 years old and the o
 Hist1_chol <- hist(heart$Cholesterol)
 ```
 
-The Cholesterol variable has 172 observations of the number 0. This means there are 172 patients without data on cholesterol levels. Therefore these observations will be exluded from the dataset since a value of 0 on cholesterol levels is impossible. 
+The Cholesterol variable has 172 observations of the number 0. It is not possible that a person has zero cholesterol level. Therefore, we will consider this information as error and, consequently, missing values.
+In the next topic, we will make a decision about how to deal with that.
 
-```{r}
-Hist2_chol <- hist(Clean_Heart$Cholesterol)
-```
-
-Comment here.
 
 ```{r}
 #Box_chol <- boxplot(Clean_Heart$Cholesterol) 
@@ -214,38 +198,25 @@ max(Clean_Heart$RestingBP)
 
 Most of the observations have a healthy resting blood pressure, which the median of 130 also represents. There are some outliers past the maximum of the boxplot, the highest observations has a resting blood pressure of 200 which is very dangerous.
 
-#Split the data into training and test samples
-In the training data set 80% (p=0.8) of the rows were generated as a new sample. Out of 597 observations 52% has normal heart performance (312 rows) and 48% has heart problems (285 rows). Therefore, the training data has approximately equal distribution of classes within response variable. 
-```{r}
-set.seed(42)
-trainDataIndex <- createDataPartition(Clean_Heart$HeartDisease, p=0.8, list = FALSE)  
-train_heart <- Clean_Heart[trainDataIndex, ]
-test_heart <- Clean_Heart[-trainDataIndex, ]
+## Missing values for cholesterol
 
-table(train_heart$HeartDisease)
+-decision if we delete missing values or delete the variable
+- 172 is almost 20% of the dataset (918 observations)
+-run a correlation here to see if cholesterol is related to heart disease 
+-argument that the best choice was to delete the variable
+
+
+```{r}
+# Excluding the 0 values
+heart_cholesterol <- heart %>% 
+                     filter(!Cholesterol == 0)
 ```
 
-# Correlation 
+Correlation
 
-The **easystats** package by Makowski and his colleagues (2019) and the **greybox** package is used to create the pairwise correlation matrix. The long variable names are first shortened to make visualization neater. 
 ```{r}
-train_heart$CPT <- train_heart$ChestPainType
-train_heart$R_BP <- train_heart$RestingBP
-train_heart$Chol <- train_heart$Cholesterol
-train_heart$F_BP <- train_heart$FastingBS
-train_heart$R_ECG <- train_heart$RestingECG
-train_heart$E_A <- train_heart$ExerciseAngina
-train_heart$O_P <- train_heart$Oldpeak
-train_heart$ST_S <- train_heart$ST_Slope
-train_heart$H_D <- train_heart$HeartDisease
-
-train_select <- select(train_heart, c(1, 2, 8, 13:21))
-```
-
-Correlation between continuous predictor variables and dichotomous categorical outcome variable is calculated using the *Point-biserial* correlation. Regarding nominal variables, the coefficient does tell something about the strength of a relation, however, not about the direction, even though those are visualised in the matrix for *H_D*. The relationship between continuous predictors is measured using *Pearson*. 
-```{r, message=FALSE}
-train_select %>%
-  select(Age, R_BP, Chol, MaxHR, O_P, H_D) %>% 
+heart_cholesterol %>%
+  select(HeartDisease, Cholesterol) %>% 
   correlation(include_factors = TRUE, method = "auto") %>%
   summary() %>%
     plot(show_labels=TRUE,
@@ -256,13 +227,71 @@ train_select %>%
        type="tile",
        )
 ```
+Very weak correlation. Decision: exclude the variable.
 
+```{r}
+Clean_Heart <- heart %>% 
+               select(!Cholesterol)
+```
+
+# Split the data into training and test samples
+In the training data set 80% (p=0.8) of the rows were generated as a new sample. Out of 597 observations 52% has normal heart performance (312 rows) and 48% has heart problems (285 rows). Therefore, the training data has approximately equal distribution of classes within response variable. 
+```{r}
+set.seed(42)
+
+# Split data randomly
+trainDataIndex <- createDataPartition(Clean_Heart$HeartDisease, 
+                                      p = 0.8, 
+                                      list = FALSE) 
+
+# Creat training and testing set
+train_heart <- Clean_Heart[trainDataIndex, ]
+test_heart <- Clean_Heart[-trainDataIndex, ]
+
+table(train_heart$HeartDisease)
+```
+
+# Correlation 
+
+The **easystats** package by Makowski and his colleagues (2019) and the **greybox** package is used to create the pairwise correlation matrix. The long variable names are first shortened to make visualization neater. 
+```{r}
+# Make the names shorter
+train_heart$CPT <- train_heart$ChestPainType
+train_heart$R_BP <- train_heart$RestingBP
+train_heart$F_BP <- train_heart$FastingBS
+train_heart$R_ECG <- train_heart$RestingECG
+train_heart$E_A <- train_heart$ExerciseAngina
+train_heart$ST_S <- train_heart$ST_Slope
+train_heart$H_D <- train_heart$HeartDisease
+
+```
+
+## Continuous predictors
+Correlation between continuous predictor variables and dichotomous categorical outcome variable is calculated using the *Point-biserial* correlation. Regarding nominal variables, the coefficient does tell something about the strength of a relation, however, not about the direction, even though those are visualised in the matrix for *H_D*. The relationship between continuous predictors is measured using *Pearson*. 
+```{r, message=FALSE}
+train_heart %>%
+  select(Age, R_BP, MaxHR, Oldpeak, H_D) %>% 
+  correlation(include_factors = TRUE, method = "auto") %>%
+  summary() %>%
+    plot(show_labels=TRUE,
+       show_p=TRUE,
+       size_point=5,
+       size_text=4,
+       digits=2,
+       type="tile",
+       )
+```
+```{r}
+summary(train_heart)
+hist_oldpeak <- hist(train_heart$Oldpeak)
+```
 When comparing the coefficients for the observations of patients with a heart disease (*H_D.Prob*), in order from strongest to weakest association, there is a significant strong positive relationship between oldpeak, which means that the higher the value of *O_P*, the more often a heart problem occurs. Relationship between *MaxHR* and heart disease is moderately negative, which suggests that the higher the maximum heart rate achieved the less heart problems are observed. Both *Oldpeak* and *MaxHR* have a moderate strength of a relationship between each other and with *Age*. In turn, *Age* has a moderate positive relationship with heart problems, meaning that the older the patients observed, the more often they have a heart disease detected. Association between resting blood pressure (*R_BP*) is weak and positive. The relationships have a reverse direction when comparing the values for a normal heart (*H_D.Norm*). 
 From continuous predictor variables the values of cholesterol (*Chol*) have insignificant negligible association with both the heart disease and other numeric predictors. 
 
+## Categorical predictors
 The *Cramer's V* is used for categorical variables. 
 ```{r, message=FALSE}
-train_select %>%
+train_heart %>%
   select(CPT, R_ECG, ST_S, H_D) %>% 
   assoc() %>%
   print(digits = 2)
@@ -270,9 +299,9 @@ train_select %>%
 
 The association between binary outcome variable and predictors with more than two categories is statistically significant. The slope of peak exercise (*ST_S*) has a strong relationship with the number of heart problems. Followed by a moderately strong relationship with chest pain types (*CPT*) observed. The least strong relationship is with the results of resting electrocardiogram results, which is almost negligible. There is a significant relationship between slope and chest pain type, however it is moderate. 
 
-For binary variables the same association measure is used. 
+For binary variables, the same association measure is used. 
 ```{r, message=FALSE}
-train_select %>%
+train_heart %>%
   select(Sex, F_BP, E_A, H_D) %>% 
   assoc() %>%
   print(digits = 2)
@@ -280,6 +309,7 @@ train_select %>%
 
 The observations of angina induced by exercise (*E_A*) correlate strongly with the heart disease. Gender (*Sex*) seems to have a moderately strong relationship with the heart disease observations. Fasting blood sugar (*F_BP*) has a weak relationship with the outcome variable. 
 
+### Sex
 To find the importance of a categorical variable, instead of correlation, we can be looking at how often a heart disease is detected per category. 
 ```{r}
 tsex <- table(train_heart$HeartDisease, train_heart$Sex)
@@ -292,6 +322,19 @@ text(bp_sex, 0, round(tsexp, 0), cex = 1, pos = 3)
 In this data set men have heart problems more often than women (56% versus 23%). 
 
 ```{r}
+train_heart %$%
+  ctable(HeartDisease, Sex,
+    prop = "r", chisq = TRUE, headings = FALSE
+  ) %>%
+  print(
+    method = "render",
+    style = "rmarkdown",
+    footnote = NA
+  )
+```
+### Chest pain type
+
+```{r}
 tCPT <- table(train_heart$HeartDisease, train_heart$ChestPainType)
 tCPTp <- scale(tCPT, FALSE, colSums(tCPT)) * 100
 
@@ -299,7 +342,21 @@ bp_CPT <- barplot(tCPTp, beside = TRUE, col = c("green","red"), ylab="Frequency 
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
 text(bp_CPT, 0, round(tCPTp, 0), cex = 1, pos = 3)
 ```
+
+```{r}
+train_heart %$%
+  ctable(HeartDisease, ChestPainType,
+    prop = "r", chisq = TRUE, headings = FALSE
+  ) %>%
+  print(
+    method = "render",
+    style = "rmarkdown",
+    footnote = NA
+  )
+```
+
 In this data set asymptomatic chest pain type has relatively more cases which have heart concerns (73%). 
+### Fasting blood sugar
 
 ```{r}
 tFBS <- table(train_heart$HeartDisease, train_heart$FastingBS)
@@ -309,8 +366,22 @@ bp_FBS <- barplot(tFBSp, beside = TRUE, col = c("green","red"), ylab="Frequency 
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
 text(bp_FBS, 0, round(tFBSp, 0), cex = 1, pos = 3)
 ```
+
+```{r}
+train_heart %$%
+  ctable(HeartDisease, FastingBS,
+    prop = "r", chisq = TRUE, headings = FALSE
+  ) %>%
+  print(
+    method = "render",
+    style = "rmarkdown",
+    footnote = NA
+  )
+
+```
 Patients with blood sugar above 120 mg/dl have heart disease relatively more often (64% versus 44%). 
 
+### Resting electrocardiogram
 ```{r}
 tRECG <- table(train_heart$HeartDisease, train_heart$RestingECG)
 tREp <- scale(tRECG, FALSE, colSums(tRECG)) * 100
@@ -319,8 +390,23 @@ bp_RE <- barplot(tREp, beside = TRUE, col = c("green","red"), ylab="Frequency (%
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
 text(bp_RE, 0, round(tREp, 0), cex = 1, pos = 3)
 ```
+
+```{r}
+train_heart %$%
+  ctable(HeartDisease, RestingECG,
+    prop = "r", chisq = TRUE, headings = FALSE
+  ) %>%
+  print(
+    method = "render",
+    style = "rmarkdown",
+    footnote = NA
+  )
+
+```
+
 ST and LVH results have more than a half cases with heart problems diagnosed. 
-The differences between classes are relatively small, so it can be assumed that the assciation is weak. 
+The differences between classes are relatively small, so it can be assumed that the association is weak. 
+### Exercise angina
 
 ```{r}
 tEA <- table(train_heart$HeartDisease, train_heart$ExerciseAngina)
@@ -331,8 +417,22 @@ legend("top", c("Normal","Problem"), fill = c("green","red"))
 text(bp_EA, 0, round(tEAp, 0), cex = 1, pos = 3)
 ```
 
+```{r}
+train_heart %$%
+  ctable(HeartDisease, ExerciseAngina,
+    prop = "r", chisq = TRUE, headings = FALSE
+  ) %>%
+  print(
+    method = "render",
+    style = "rmarkdown",
+    footnote = NA
+  )
+```
+
 Patients with angina induced by exercise have heart disease relatively more often (83% versus 26%). 
 Here the differences are large, so there might be a strong relationship between *ExerciseAngina* and *HeartDisease*. 
+
+### St Slope
 
 ```{r}
 tST <- table(train_heart$HeartDisease, train_heart$ST_Slope)
@@ -341,6 +441,18 @@ tSTp <- scale(tST, FALSE, colSums(tST)) * 100
 bp_ST <- barplot(tSTp, beside = TRUE, col = c("green","red"), ylab="Frequency (%)", ylim=c(0,100))
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
 text(bp_ST, 0, round(tSTp, 0), cex = 1, pos = 3)
+```
+
+```{r}
+train_heart %$%
+  ctable(HeartDisease, ST_Slope,
+    prop = "r", chisq = TRUE, headings = FALSE
+  ) %>%
+  print(
+    method = "render",
+    style = "rmarkdown",
+    footnote = NA
+  )
 ```
 
 The number of patients with heart problems is largest for cases with the flat and down slopes observed, over the three quarters. As the differences between these categories of slopes are large, this suggests a strong relation with the outcome variable. 
@@ -357,9 +469,11 @@ set.seed(42)
 Comment here.
 
 ```{r}
-#Model1 <- glm(HeartDisease ~ Cholesterol, 
-#              data = Clean_heart, 
-#              family = "binomial")
+model_age <- glm(HeartDisease ~ Age, 
+              data = train_heart, 
+              family = "binomial")
+
+summary(model_age)
 ```
 
 Comment here.
@@ -368,7 +482,7 @@ Comment here.
 #summary(Model1)
 ```
 
-# Best model
+
 
 # Comparing models
 
