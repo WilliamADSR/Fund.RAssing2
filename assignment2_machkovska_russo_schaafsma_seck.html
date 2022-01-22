@@ -242,7 +242,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Logistic regression assignment, group 3</h1>
 <h4 class="author">Elizabeth Machkovska, Letícia Marçal Russo, Madio Seck, William Schaafsma</h4>
-<h4 class="date">20 January, 2022</h4>
+<h4 class="date">22 January, 2022</h4>
 
 </div>
 
@@ -1766,6 +1766,44 @@ summary(fit6)</code></pre>
                            + MaxHR 
                            + ST_Slope
                            + Oldpeak
+                           + ExerciseAngina * Oldpeak,
+              data = train_heart, 
+              family = &quot;binomial&quot;)
+
+summary(fit7)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = HeartDisease ~ ExerciseAngina + MaxHR + ST_Slope + 
+##     Oldpeak + ExerciseAngina * Oldpeak, family = &quot;binomial&quot;, 
+##     data = train_heart)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.7409  -0.5905   0.2796   0.5822   2.3478  
+## 
+## Coefficients:
+##                          Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)              0.840030   0.653250   1.286   0.1985    
+## ExerciseAnginaY          1.250309   0.315376   3.965 7.35e-05 ***
+## MaxHR                   -0.018104   0.004414  -4.102 4.10e-05 ***
+## ST_SlopeFlat             2.139569   0.216282   9.892  &lt; 2e-16 ***
+## ST_SlopeDown             0.986055   0.429341   2.297   0.0216 *  
+## Oldpeak                  0.335668   0.132980   2.524   0.0116 *  
+## ExerciseAnginaY:Oldpeak  0.174444   0.234636   0.743   0.4572    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1010.42  on 734  degrees of freedom
+## Residual deviance:  620.28  on 728  degrees of freedom
+## AIC: 634.28
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<pre class="r"><code>fit7 &lt;- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak
                            + MaxHR * ST_Slope,
               data = train_heart, 
               family = &quot;binomial&quot;)
@@ -1804,11 +1842,48 @@ summary(fit7)</code></pre>
                            + MaxHR 
                            + ST_Slope
                            + Oldpeak
-                           + ST_Slope * Oldpeak,
+                           + MaxHR * Oldpeak,
               data = train_heart, 
               family = &quot;binomial&quot;)
 
 summary(fit8)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = HeartDisease ~ ExerciseAngina + MaxHR + ST_Slope + 
+##     Oldpeak + MaxHR * Oldpeak, family = &quot;binomial&quot;, data = train_heart)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.5758  -0.5866   0.3090   0.5937   2.4079  
+## 
+## Coefficients:
+##                  Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)      1.094848   0.750222   1.459 0.144465    
+## ExerciseAnginaY  1.436156   0.236178   6.081  1.2e-09 ***
+## MaxHR           -0.020191   0.005194  -3.887 0.000101 ***
+## ST_SlopeFlat     2.140897   0.216788   9.876  &lt; 2e-16 ***
+## ST_SlopeDown     0.997980   0.423146   2.358 0.018350 *  
+## Oldpeak         -0.077584   0.659532  -0.118 0.906357    
+## MaxHR:Oldpeak    0.003281   0.004582   0.716 0.473912    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1010.42  on 734  degrees of freedom
+## Residual deviance:  620.34  on 728  degrees of freedom
+## AIC: 634.34
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<pre class="r"><code>fit9 &lt;- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak
+                           + ST_Slope * Oldpeak,
+              data = train_heart, 
+              family = &quot;binomial&quot;)
+
+summary(fit9)</code></pre>
 <pre><code>## 
 ## Call:
 ## glm(formula = HeartDisease ~ ExerciseAngina + MaxHR + ST_Slope + 
@@ -1838,41 +1913,45 @@ summary(fit8)</code></pre>
 ## AIC: 618.47
 ## 
 ## Number of Fisher Scoring iterations: 5</code></pre>
-<pre class="r"><code>fit9 &lt;- glm(HeartDisease ~ ExerciseAngina
+<pre class="r"><code>fit10 &lt;- glm(HeartDisease ~ ExerciseAngina
                            + MaxHR 
                            + ST_Slope
                            + Oldpeak
-                           + MaxHR * Oldpeak,
+                           + ST_Slope * Oldpeak
+                           + ExerciseAngina * Oldpeak,
               data = train_heart, 
               family = &quot;binomial&quot;)
 
-summary(fit9)</code></pre>
+summary(fit10)</code></pre>
 <pre><code>## 
 ## Call:
 ## glm(formula = HeartDisease ~ ExerciseAngina + MaxHR + ST_Slope + 
-##     Oldpeak + MaxHR * Oldpeak, family = &quot;binomial&quot;, data = train_heart)
+##     Oldpeak + ST_Slope * Oldpeak + ExerciseAngina * Oldpeak, 
+##     family = &quot;binomial&quot;, data = train_heart)
 ## 
 ## Deviance Residuals: 
 ##     Min       1Q   Median       3Q      Max  
-## -2.5758  -0.5866   0.3090   0.5937   2.4079  
+## -2.4999  -0.5208   0.3230   0.5651   2.5907  
 ## 
 ## Coefficients:
-##                  Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)      1.094848   0.750222   1.459 0.144465    
-## ExerciseAnginaY  1.436156   0.236178   6.081  1.2e-09 ***
-## MaxHR           -0.020191   0.005194  -3.887 0.000101 ***
-## ST_SlopeFlat     2.140897   0.216788   9.876  &lt; 2e-16 ***
-## ST_SlopeDown     0.997980   0.423146   2.358 0.018350 *  
-## Oldpeak         -0.077584   0.659532  -0.118 0.906357    
-## MaxHR:Oldpeak    0.003281   0.004582   0.716 0.473912    
+##                          Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)              0.647609   0.678838   0.954 0.340086    
+## ExerciseAnginaY          1.168832   0.335431   3.485 0.000493 ***
+## MaxHR                   -0.019099   0.004586  -4.165 3.11e-05 ***
+## ST_SlopeFlat             2.802216   0.279179  10.037  &lt; 2e-16 ***
+## ST_SlopeDown             1.571741   0.682137   2.304 0.021215 *  
+## Oldpeak                  1.030278   0.212350   4.852 1.22e-06 ***
+## ST_SlopeFlat:Oldpeak    -1.063493   0.251724  -4.225 2.39e-05 ***
+## ST_SlopeDown:Oldpeak    -0.843230   0.360929  -2.336 0.019477 *  
+## ExerciseAnginaY:Oldpeak  0.233319   0.230850   1.011 0.312162    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
 ## (Dispersion parameter for binomial family taken to be 1)
 ## 
 ##     Null deviance: 1010.42  on 734  degrees of freedom
-## Residual deviance:  620.34  on 728  degrees of freedom
-## AIC: 634.34
+## Residual deviance:  601.42  on 726  degrees of freedom
+## AIC: 619.42
 ## 
 ## Number of Fisher Scoring iterations: 5</code></pre>
 <pre class="r"><code>fit11 &lt;- glm(HeartDisease ~ ExerciseAngina
@@ -1927,8 +2006,75 @@ summary(fit11)</code></pre>
 ## AIC: 624.26
 ## 
 ## Number of Fisher Scoring iterations: 5</code></pre>
+<div id="change-in-deviance-1" class="section level2" number="12.1">
+<h2><span class="header-section-number">12.1</span> Change in deviance</h2>
+<pre class="r"><code>anova(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11,
+                                  test = &quot;Chisq&quot;) </code></pre>
+<pre><code>## Analysis of Deviance Table
+## 
+## Model 1: HeartDisease ~ ExerciseAngina + MaxHR + ST_Slope + Oldpeak
+## Model 2: HeartDisease ~ ExerciseAngina + MaxHR + ST_Slope + Oldpeak + 
+##     ExerciseAngina * MaxHR
+## Model 3: HeartDisease ~ ExerciseAngina + MaxHR + ST_Slope + Oldpeak + 
+##     ExerciseAngina * ST_Slope
+## Model 4: HeartDisease ~ ExerciseAngina + MaxHR + ST_Slope + Oldpeak + 
+##     MaxHR * ST_Slope
+## Model 5: HeartDisease ~ ExerciseAngina + MaxHR + ST_Slope + Oldpeak + 
+##     MaxHR * Oldpeak
+## Model 6: HeartDisease ~ ExerciseAngina + MaxHR + ST_Slope + Oldpeak + 
+##     ST_Slope * Oldpeak
+## Model 7: HeartDisease ~ ExerciseAngina + MaxHR + ST_Slope + Oldpeak + 
+##     ST_Slope * Oldpeak + ExerciseAngina * Oldpeak
+## Model 8: HeartDisease ~ ExerciseAngina + MaxHR + ST_Slope + Oldpeak + 
+##     ExerciseAngina * MaxHR + ExerciseAngina * ST_Slope + ExerciseAngina * 
+##     Oldpeak + MaxHR * ST_Slope + MaxHR * Oldpeak + ST_Slope * 
+##     Oldpeak
+##   Resid. Df Resid. Dev Df Deviance  Pr(&gt;Chi)    
+## 1       729     620.85                          
+## 2       728     620.41  1   0.4398   0.50723    
+## 3       727     616.08  1   4.3282   0.03749 *  
+## 4       727     616.80  0  -0.7178              
+## 5       728     620.34 -1  -3.5406   0.05989 .  
+## 6       727     602.47  1  17.8667 2.369e-05 ***
+## 7       726     601.42  1   1.0473   0.30612    
+## 8       720     594.26  6   7.1675   0.30563    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 </div>
-<div id="cross-validation-1" class="section level1" number="13">
+<div id="information-criteria-1" class="section level2" number="12.2">
+<h2><span class="header-section-number">12.2</span> Information criteria</h2>
+<pre class="r"><code>AIC(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11)</code></pre>
+<pre><code>##       df      AIC
+## fit3   6 632.8467
+## fit5   7 634.4069
+## fit6   8 632.0787
+## fit7   8 632.7965
+## fit8   7 634.3371
+## fit9   8 618.4705
+## fit10  9 619.4231
+## fit11 15 624.2556</code></pre>
+<pre class="r"><code>BIC(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11)</code></pre>
+<pre><code>##       df      BIC
+## fit3   6 660.4459
+## fit5   7 666.6060
+## fit6   8 668.8777
+## fit7   8 669.5955
+## fit8   7 666.5362
+## fit9   8 655.2694
+## fit10  9 660.8219
+## fit11 15 693.2536</code></pre>
+</div>
+<div id="cross-validation-1" class="section level2" number="12.3">
+<h2><span class="header-section-number">12.3</span> Cross Validation</h2>
+<pre class="r"><code>set.seed(42)
+cross5 &lt;- CVbinary(fit5, nfolds = 10)</code></pre>
+<pre><code>## 
+## Fold:  1 5 9 10 4 2 8 7 3 6
+## Internal estimate of accuracy = 0
+## Cross-validation estimate of accuracy = 0</code></pre>
+</div>
+</div>
+<div id="cross-validation-2" class="section level1" number="13">
 <h1><span class="header-section-number">13</span> Cross Validation</h1>
 </div>
 <div id="confusion-matrix" class="section level1" number="14">
