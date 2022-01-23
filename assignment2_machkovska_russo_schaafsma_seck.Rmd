@@ -236,7 +236,7 @@ Clean_Heart <- heart %>%
 ```
 
 # Split the data into training and test samples
-In the training data set 80% (p=0.8) of the rows were generated as a new sample. Out of 597 observations 52% has normal heart performance (312 rows) and 48% has heart problems (285 rows). Therefore, the training data has approximately equal distribution of classes within response variable. 
+In the training data set 80% (p=0.8) of the rows were generated as a new sample. Out of 735 observations 45% has normal heart performance (328 rows) and 55% has heart problems (407 rows). Therefore, the training data has approximately equal distribution of classes within response variable. 
 ```{r}
 set.seed(42)
 
@@ -245,7 +245,7 @@ trainDataIndex <- createDataPartition(Clean_Heart$HeartDisease,
                                       p = 0.8, 
                                       list = FALSE) 
 
-# Creat training and testing set
+# Create training and testing set
 train_heart <- Clean_Heart[trainDataIndex, ]
 test_heart <- Clean_Heart[-trainDataIndex, ]
 
@@ -259,7 +259,7 @@ The **easystats** package by Makowski and his colleagues (2019) and the **greybo
 # Make the names shorter
 train_heart$CPT <- train_heart$ChestPainType
 train_heart$R_BP <- train_heart$RestingBP
-train_heart$F_BP <- train_heart$FastingBS
+train_heart$F_BS <- train_heart$FastingBS
 train_heart$R_ECG <- train_heart$RestingECG
 train_heart$E_A <- train_heart$ExerciseAngina
 train_heart$ST_S <- train_heart$ST_Slope
@@ -282,10 +282,11 @@ train_heart %>%
        type="tile",
        )
 ```
-```{r}
+
+What is this code for?
 summary(train_heart)
 hist_oldpeak <- hist(train_heart$Oldpeak)
-```
+
 When comparing the coefficients for the observations of patients with a heart disease (*H_D.Prob*), in order from strongest to weakest association, there is a significant strong positive relationship between oldpeak, which means that the higher the value of *O_P*, the more often a heart problem occurs. Relationship between *MaxHR* and heart disease is moderately negative, which suggests that the higher the maximum heart rate achieved the less heart problems are observed. Both *Oldpeak* and *MaxHR* have a moderate strength of a relationship between each other and with *Age*. In turn, *Age* has a moderate positive relationship with heart problems, meaning that the older the patients observed, the more often they have a heart disease detected. Association between resting blood pressure (*R_BP*) is weak and positive. The relationships have a reverse direction when comparing the values for a normal heart (*H_D.Norm*). 
 From continuous predictor variables the values of cholesterol (*Chol*) have insignificant negligible association with both the heart disease and other numeric predictors. 
 
@@ -298,17 +299,17 @@ train_heart %>%
   print(digits = 2)
 ```
 
-The association between binary outcome variable and predictors with more than two categories is statistically significant. The slope of peak exercise (*ST_S*) has a strong relationship with the number of heart problems. Followed by a moderately strong relationship with chest pain types (*CPT*) observed. The least strong relationship is with the results of resting electrocardiogram results, which is almost negligible. There is a significant relationship between slope and chest pain type, however it is moderate. 
+The association between binary outcome variable and predictors with more than two categories is statistically significant. The slope of peak exercise (*ST_S*) has a strong relationship with the number of heart problems. Followed by a moderately strong relationship with chest pain types (*CPT*) observed. The least strong relationship is with the results of resting electrocardiogram results (*R_ECG*), which is almost negligible. There is a significant relationship between slope and chest pain type, however it is moderate. 
 
 For binary variables, the same association measure is used. 
 ```{r, message=FALSE}
 train_heart %>%
-  select(Sex, F_BP, E_A, H_D) %>% 
+  select(Sex, F_BS, E_A, H_D) %>% 
   assoc() %>%
   print(digits = 2)
 ```
 
-The observations of angina induced by exercise (*E_A*) correlate strongly with the heart disease. Gender (*Sex*) seems to have a moderately strong relationship with the heart disease observations. Fasting blood sugar (*F_BP*) has a weak relationship with the outcome variable. 
+The observations of angina induced by exercise (*E_A*) correlate strongly with the heart disease. Gender (*Sex*) seems to have a moderately strong relationship with the heart disease observations. Fasting blood sugar (*F_BS*) has a weak relationship with the outcome variable. 
 
 ### Sex
 To find the importance of a categorical variable, instead of correlation, we can be looking at how often a heart disease is detected per category. 
@@ -320,7 +321,7 @@ bp_sex <- barplot(tsexp, beside = TRUE, col = c("green","red"), ylab="Frequency 
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
 text(bp_sex, 0, round(tsexp, 0), cex = 1, pos = 3)
 ```
-In this data set men have heart problems more often than women (56% versus 23%). 
+In this data set men have heart problems more often than women (63% versus 27%). 
 
 ```{r}
 train_heart %$%
