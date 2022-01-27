@@ -36,6 +36,11 @@ library(fastDummies)
 
 # Research question and relevance 
 
+- tell that we are doing an exploratory analysis about the variables that could predict better heart disease. Therefore, we are not working with hypothesis 
+
+- when running test statistics, we will work with an alpha of 0.05 and confidence of 95%.
+
+- our goal is to make good predictions and not focus in inference. Mainly see how our model works in new data. We are will do it testing predictions in a test set that we will create in the beginning of the analysis.  
 
 # Loading the Dataset
 The data set is derived from Kaggle and is uploaded by fedesoriano (2021). With the following script a distinction is made between continuous (numeric) and categorical variables which are transformed to factor type data. 
@@ -486,6 +491,9 @@ dummy_heart <- dummy_heart %>%
 head(dummy_heart) %>% 
   knitr::kable(format = "markdown", digits= 1, padding = 30, align = 'c')
 ```
+We will treat *ExerciseAgina_N* (no for exercise angina) as the reference group and, therefore, only the variable *ExerciseAngina_Y* (yes for exercise angina) will be included in the model, as the focal group.  
+In the case of *ST_Slope*, *ST_Slope_Up* will be the reference group and, consequently, only *ST_Slope_Down* and *ST_Slope_Flat* will ne included in the model. 
+
 
 # Model building
 
@@ -499,41 +507,53 @@ set.seed(42)
 ```
 
 ### Age
+
+When regressing *HeartDesease* on *Age*, one can see that both, intercept and the slope for age, are significant, as soon as the p-value is smaller than 0.05. 
 ```{r}
 model_age <- glm(HeartDisease ~ Age, 
-              data = train_heart, 
+              data = dummy_heart, 
               family = "binomial")
 
 summary(model_age)
 ```
 ### Old peak
+
+*Oldpeak* has also a pretty small p-value (< 2e-16) for the intercept and slope and, therefore, has a significant effect on *HeartDisease*. 
+
 ```{r}
 model_oldpeak <- glm(HeartDisease ~ Oldpeak, 
-              data = train_heart, 
+              data = dummy_heart, 
               family = "binomial")
 
 summary(model_oldpeak)
 ```
 ### Max HR
+
+In the simple logistic regression, *MaxHR* shows to have a signifcant effect on *HeartDisease*, presenting a very small p-value (<2e-16). 
 ```{r}
 model_maxhr <- glm(HeartDisease ~ MaxHR, 
-              data = train_heart, 
+              data = dummy_heart, 
               family = "binomial")
 
 summary(model_maxhr)
 ```
 ### ST_Slope
+
+As said before, the reference group here is *ST_Slope_Up*. Both slopes for *ST_Slope_Down* and *ST_Slope_Flat* have a tiny p-value and, therefore, are siginificantly bigger than zero. 
+
 ```{r}
-model_stslope <- glm(HeartDisease ~ ST_Slope, 
-              data = train_heart, 
+model_stslope <- glm(HeartDisease ~ ST_Slope_Down + ST_Slope_Flat, 
+              data = dummy_heart, 
               family = "binomial")
 
 summary(model_stslope)
 ```
 ### ExerciseAngima
+
+Here *ExerciseAniga_N* is the reference group. The slope for the focal group, *ExerciseAngina_Y*, has a small p-value (< 2e-16) and, therefore, is significant. 
 ```{r}
-model_angina <- glm(HeartDisease ~ ExerciseAngina, 
-              data = train_heart, 
+model_angina <- glm(HeartDisease ~ ExerciseAngina_Y, 
+              data = dummy_heart, 
               family = "binomial")
 
 summary(model_angina)
