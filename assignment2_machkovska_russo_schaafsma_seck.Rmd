@@ -495,7 +495,7 @@ We will treat *ExerciseAgina_N* (no for exercise angina) as the reference group 
 In the case of *ST_Slope*, *ST_Slope_Up* will be the reference group and, consequently, only *ST_Slope_Down* and *ST_Slope_Flat* will ne included in the model. 
 
 
-# Model building
+# Model building - additive
 
 Starting with only one predictor, to explore how the variables behave in a simple model. 
 
@@ -627,16 +627,19 @@ anova(fit1, fit2, fit3, fit4, test = "Chisq")
 ```
 
 ## Information criteria
-Comparing information criteria.
 
-The second model has an improvement comparing to the first one, as the AIC dropped off. The information criteria, however, increased again in the third model, making clear that the variable age does not worth to added and, therefore, second model is the best one. 
+Now we will compare the model by means of information criteria. These measurements penalize the addition of new predictors. The best model is the one that shows a smaller number for AIC and BIC.  
+The output bellow shows that **fit2** has an improvement compared to **fit1** as well as *fit3* presents an improvement compared to *fit2*.  
+AIC, however, increases for *fit4*, confirming that *Age* is not worth being added.
+
 ```{r}
 AIC(fit1, fit2, fit3, fit4)
 ```
-BIC follows the same narrative as AIC. 
+BIC follows the same narrative as AIC and, therefore, *fit3* is the best.  
 ```{r}
 BIC(fit1, fit2, fit3, fit4)
 ```
+
 ## Cross-validation
 
 Result model 1 here
@@ -665,13 +668,13 @@ set.seed(42)
 cross4 <- CVbinary(fit4, nfolds = 10)
 ```
 
-Comaprison all results here
+Comparison all results here
 
 ```{r}
 c(fit1 = cross1$acc.cv, fit2 = cross2$acc.cv, fit3 = cross3$acc.cv, fit4 = cross4$acc.cv)
 ```
 
-# Model comparison - interaction
+# Model building - interaction
 Now we have chosen the best additive model, we will add interactions to try to improve it. 
 
 ```{r}
@@ -778,6 +781,8 @@ fit11 <- glm(HeartDisease ~ ExerciseAngina
 
 summary(fit11)
 ```
+
+# Model comparison - interaction 
 
 ## Change in deviance
 

@@ -1427,8 +1427,8 @@ head(dummy_heart) %&gt;%
 <p>We will treat <em>ExerciseAgina_N</em> (no for exercise angina) as the reference group and, therefore, only the variable <em>ExerciseAngina_Y</em> (yes for exercise angina) will be included in the model, as the focal group.<br />
 In the case of <em>ST_Slope</em>, <em>ST_Slope_Up</em> will be the reference group and, consequently, only <em>ST_Slope_Down</em> and <em>ST_Slope_Flat</em> will ne included in the model.</p>
 </div>
-<div id="model-building" class="section level1" number="11">
-<h1><span class="header-section-number">11</span> Model building</h1>
+<div id="model-building---additive" class="section level1" number="11">
+<h1><span class="header-section-number">11</span> Model building - additive</h1>
 <p>Starting with only one predictor, to explore how the variables behave in a simple model.</p>
 <div id="simple-logistic-regression" class="section level2" number="11.1">
 <h2><span class="header-section-number">11.1</span> Simple logistic regression</h2>
@@ -1594,6 +1594,8 @@ summary(model_angina)</code></pre>
 </div>
 <div id="multiple-logistic-regression" class="section level2" number="11.2">
 <h2><span class="header-section-number">11.2</span> Multiple logistic regression</h2>
+<p>Now we will start adding up new predictors, one by one, until the five variables are in the model. For the sake of the organization, we will train all the models before and pay attention to their p-values. In the next topic, we will make the comparison among all the four models.</p>
+<p>First one will contain the predictors <em>ExerciseAngina_Y</em> and <em>MaxHR</em>. As seen in the output bellow, the intercept and the slopes for both of the predictors have tiny p-value and, therefore, are significant.</p>
 <pre class="r"><code>fit1 &lt;- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR, 
               data = dummy_heart, 
@@ -1624,6 +1626,7 @@ summary(fit1)</code></pre>
 ## AIC: 774.17
 ## 
 ## Number of Fisher Scoring iterations: 4</code></pre>
+<p>In the second model, the categorical predictor <em>ST_slope</em>, presented as the dummy codes <em>ST_Slope_Down</em> and <em>ST_Slope_Flat</em>, will be added in the model. All the slopes are significant, but the intercept has a p-value bigger than 0.05.</p>
 <pre class="r"><code>fit2 &lt;- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
                            + ST_Slope_Down
@@ -1658,6 +1661,7 @@ summary(fit2)</code></pre>
 ## AIC: 642.99
 ## 
 ## Number of Fisher Scoring iterations: 5</code></pre>
+<p>The numeric predictor <em>Oldpeak</em> is the next one to join the model. As <strong>fit2</strong>, this model has significant slopes, but a non-significant intercept.</p>
 <pre class="r"><code>fit3 &lt;- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
                            + ST_Slope_Down
@@ -1694,6 +1698,7 @@ summary(fit3)</code></pre>
 ## AIC: 632.85
 ## 
 ## Number of Fisher Scoring iterations: 5</code></pre>
+<p>Lastly, the numeric predictor <em>Age</em> will be added. It does not show a significant slope (p-value = 0.201367). We will check in the next topic if it is worth adding <em>Age</em> to the model.</p>
 <pre class="r"><code>fit4 &lt;- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
                            + ST_Slope_Down
@@ -1738,7 +1743,10 @@ summary(fit4)</code></pre>
 <h1><span class="header-section-number">12</span> Model comparison - additive</h1>
 <div id="change-in-deviance" class="section level2" number="12.1">
 <h2><span class="header-section-number">12.1</span> Change in deviance</h2>
-<p>Testing the change in deviance The improvement is clear until the model 3, when the deviance decreases significantly. Model 4 shows a small decrease in the deviance, but it is doubtful whether it is worth complicating the model by so little improvement. We will test for information criteria in the next section - a measurement that penalizes the addition of new predictors - to get better insights about that.</p>
+<p>We will first test the change in deviance in order to choose the best model. As soon as we are talking about deviance, we should choose the model that has the smallest result for the residual deviance.<br />
+When we use the function anova, we compare the change between <strong>fit1</strong> and <strong>fit2</strong>; then between <strong>fit2</strong> and <strong>fit3</strong>; and lastly, between <strong>fit3</strong> and <strong>fit4</strong>.<br />
+The improvement is clear until <strong>fit3</strong>, when the deviance decreases significantly. <strong>Fit4</strong> shows a small decrease in the deviance, but it is not significant (p-value = 0.201).<br />
+By the criterion of parsimony, it does not worth to add complexity to the model, if the decrease in the deviance is not significant. By this comparison criterion, <em>Age</em> should not be added and, therefore, <em>fit3</em> is the best for now.</p>
 <pre class="r"><code>anova(fit1, fit2, fit3, fit4, test = &quot;Chisq&quot;) </code></pre>
 <pre><code>## Analysis of Deviance Table
 ## 
@@ -1758,15 +1766,16 @@ summary(fit4)</code></pre>
 </div>
 <div id="information-criteria" class="section level2" number="12.2">
 <h2><span class="header-section-number">12.2</span> Information criteria</h2>
-<p>Comparing information criteria.</p>
-<p>The second model has an improvement comparing to the first one, as the AIC dropped off. The information criteria, however, increased again in the third model, making clear that the variable age does not worth to added and, therefore, second model is the best one.</p>
+<p>Now we will compare the model by means of information criteria. These measurements penalize the addition of new predictors. The best model is the one that shows a smaller number for AIC and BIC.<br />
+The output bellow shows that <strong>fit2</strong> has an improvement compared to <strong>fit1</strong> as well as <em>fit3</em> presents an improvement compared to <em>fit2</em>.<br />
+AIC, however, increases for <em>fit4</em>, confirming that <em>Age</em> is not worth being added.</p>
 <pre class="r"><code>AIC(fit1, fit2, fit3, fit4)</code></pre>
 <pre><code>##      df      AIC
 ## fit1  3 774.1669
 ## fit2  5 642.9857
 ## fit3  6 632.8467
 ## fit4  7 633.2118</code></pre>
-<p>BIC follows the same narrative as AIC.</p>
+<p>BIC follows the same narrative as AIC and, therefore, <em>fit3</em> is the best.</p>
 <pre class="r"><code>BIC(fit1, fit2, fit3, fit4)</code></pre>
 <pre><code>##      df      BIC
 ## fit1  3 787.9665
@@ -1804,14 +1813,14 @@ cross4 &lt;- CVbinary(fit4, nfolds = 10)</code></pre>
 ## Fold:  1 5 9 10 4 2 8 7 3 6
 ## Internal estimate of accuracy = 0
 ## Cross-validation estimate of accuracy = 0</code></pre>
-<p>Comaprison all results here</p>
+<p>Comparison all results here</p>
 <pre class="r"><code>c(fit1 = cross1$acc.cv, fit2 = cross2$acc.cv, fit3 = cross3$acc.cv, fit4 = cross4$acc.cv)</code></pre>
 <pre><code>## fit1 fit2 fit3 fit4 
 ##    0    0    0    0</code></pre>
 </div>
 </div>
-<div id="model-comparison---interaction" class="section level1" number="13">
-<h1><span class="header-section-number">13</span> Model comparison - interaction</h1>
+<div id="model-building---interaction" class="section level1" number="13">
+<h1><span class="header-section-number">13</span> Model building - interaction</h1>
 <p>Now we have chosen the best additive model, we will add interactions to try to improve it.</p>
 <pre class="r"><code>fit5 &lt;- glm(HeartDisease ~ ExerciseAngina
                            + MaxHR 
@@ -2133,8 +2142,11 @@ summary(fit11)</code></pre>
 ## AIC: 624.26
 ## 
 ## Number of Fisher Scoring iterations: 5</code></pre>
-<div id="change-in-deviance-1" class="section level2" number="13.1">
-<h2><span class="header-section-number">13.1</span> Change in deviance</h2>
+</div>
+<div id="model-comparison---interaction" class="section level1" number="14">
+<h1><span class="header-section-number">14</span> Model comparison - interaction</h1>
+<div id="change-in-deviance-1" class="section level2" number="14.1">
+<h2><span class="header-section-number">14.1</span> Change in deviance</h2>
 <pre class="r"><code>anova(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11,
                                   test = &quot;Chisq&quot;) </code></pre>
 <pre><code>## Analysis of Deviance Table
@@ -2169,8 +2181,8 @@ summary(fit11)</code></pre>
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 </div>
-<div id="information-criteria-1" class="section level2" number="13.2">
-<h2><span class="header-section-number">13.2</span> Information criteria</h2>
+<div id="information-criteria-1" class="section level2" number="14.2">
+<h2><span class="header-section-number">14.2</span> Information criteria</h2>
 <pre class="r"><code>AIC(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11)</code></pre>
 <pre><code>##       df      AIC
 ## fit3   6 632.8467
@@ -2192,8 +2204,8 @@ summary(fit11)</code></pre>
 ## fit10  9 660.8219
 ## fit11 15 693.2536</code></pre>
 </div>
-<div id="cross-validation-1" class="section level2" number="13.3">
-<h2><span class="header-section-number">13.3</span> Cross Validation</h2>
+<div id="cross-validation-1" class="section level2" number="14.3">
+<h2><span class="header-section-number">14.3</span> Cross Validation</h2>
 <p>Result model 5 here</p>
 <pre class="r"><code>set.seed(42)
 cross5 &lt;- CVbinary(fit5, nfolds = 10)</code></pre>
@@ -2251,11 +2263,11 @@ cross11 &lt;- CVbinary(fit11, nfolds = 10)</code></pre>
 ##     0     0     0     0     0     0     0</code></pre>
 </div>
 </div>
-<div id="cross-validation-2" class="section level1" number="14">
-<h1><span class="header-section-number">14</span> Cross Validation</h1>
+<div id="cross-validation-2" class="section level1" number="15">
+<h1><span class="header-section-number">15</span> Cross Validation</h1>
 </div>
-<div id="confusion-matrix" class="section level1" number="15">
-<h1><span class="header-section-number">15</span> Confusion Matrix</h1>
+<div id="confusion-matrix" class="section level1" number="16">
+<h1><span class="header-section-number">16</span> Confusion Matrix</h1>
 <pre class="r"><code>probab &lt;- predict(fit3, newdata = dummy_heart, type = &quot;response&quot;)
 
 class &lt;- ifelse(probab &gt; 0.5, &quot;Prob&quot;, &quot;Norm&quot;) %&gt;% factor()
@@ -2293,38 +2305,38 @@ table(class)</code></pre>
 ##        &#39;Positive&#39; Class : Norm           
 ## </code></pre>
 </div>
-<div id="visualization-of-the-model" class="section level1" number="16">
-<h1><span class="header-section-number">16</span> Visualization of the model</h1>
+<div id="visualization-of-the-model" class="section level1" number="17">
+<h1><span class="header-section-number">17</span> Visualization of the model</h1>
 </div>
-<div id="checking-assumptions" class="section level1" number="17">
-<h1><span class="header-section-number">17</span> Checking assumptions</h1>
-<div id="residuals-vs-fitted-model" class="section level2" number="17.1">
-<h2><span class="header-section-number">17.1</span> Residuals vs Fitted model</h2>
+<div id="checking-assumptions" class="section level1" number="18">
+<h1><span class="header-section-number">18</span> Checking assumptions</h1>
+<div id="residuals-vs-fitted-model" class="section level2" number="18.1">
+<h2><span class="header-section-number">18.1</span> Residuals vs Fitted model</h2>
 </div>
-<div id="normal-q-q-plot" class="section level2" number="17.2">
-<h2><span class="header-section-number">17.2</span> Normal Q-Q plot</h2>
+<div id="normal-q-q-plot" class="section level2" number="18.2">
+<h2><span class="header-section-number">18.2</span> Normal Q-Q plot</h2>
 </div>
-<div id="scale-location" class="section level2" number="17.3">
-<h2><span class="header-section-number">17.3</span> Scale-Location</h2>
+<div id="scale-location" class="section level2" number="18.3">
+<h2><span class="header-section-number">18.3</span> Scale-Location</h2>
 </div>
-<div id="cooks-distance" class="section level2" number="17.4">
-<h2><span class="header-section-number">17.4</span> Cook’s distance</h2>
+<div id="cooks-distance" class="section level2" number="18.4">
+<h2><span class="header-section-number">18.4</span> Cook’s distance</h2>
 </div>
-<div id="residuals-vs-leverage" class="section level2" number="17.5">
-<h2><span class="header-section-number">17.5</span> Residuals vs Leverage</h2>
+<div id="residuals-vs-leverage" class="section level2" number="18.5">
+<h2><span class="header-section-number">18.5</span> Residuals vs Leverage</h2>
 </div>
 </div>
-<div id="interpreting-the-final-model" class="section level1" number="18">
-<h1><span class="header-section-number">18</span> Interpreting the final model</h1>
+<div id="interpreting-the-final-model" class="section level1" number="19">
+<h1><span class="header-section-number">19</span> Interpreting the final model</h1>
 </div>
-<div id="answering-the-research-question" class="section level1" number="19">
-<h1><span class="header-section-number">19</span> Answering the research question</h1>
+<div id="answering-the-research-question" class="section level1" number="20">
+<h1><span class="header-section-number">20</span> Answering the research question</h1>
 </div>
-<div id="discussion-limitations" class="section level1" number="20">
-<h1><span class="header-section-number">20</span> Discussion &amp; Limitations</h1>
+<div id="discussion-limitations" class="section level1" number="21">
+<h1><span class="header-section-number">21</span> Discussion &amp; Limitations</h1>
 </div>
-<div id="sources" class="section level1" number="21">
-<h1><span class="header-section-number">21</span> Sources</h1>
+<div id="sources" class="section level1" number="22">
+<h1><span class="header-section-number">22</span> Sources</h1>
 <p>fedesoriano. (2021, September). <em>Heart Failure Prediction Dataset.</em> [Data set] Retrieved from <a href="https://www.kaggle.com/fedesoriano/heart-failure-prediction" class="uri">https://www.kaggle.com/fedesoriano/heart-failure-prediction</a>.</p>
 <p>Hastie, T., James, G., Tibshirani, R. &amp; Witten, D. (2021). <em>An Introduction to Statistical Learning with Applications in R</em>. (2nd edition). Springer. Retrieved from <a href="https://hastie.su.domains/ISLR2/ISLRv2_website.pdf" class="uri">https://hastie.su.domains/ISLR2/ISLRv2_website.pdf</a></p>
 <p>Haira, K. (2018, 17 May). <em>dplyr - advanced-joining</em> Retrieved from <a href="https://rpubs.com/KunalHaria/390063" class="uri">https://rpubs.com/KunalHaria/390063</a>.</p>
