@@ -32,6 +32,9 @@ library(greybox)
 library(summarytools)
 library(DAAG)
 library(fastDummies)
+library(devtools)
+library(ggiraph) 
+library(ggiraphExtra)
 ```
 
 # Research question and relevance 
@@ -260,7 +263,7 @@ table(train_heart$HeartDisease)
 
 # Correlation 
 
-The **easystats** package by Makowski and his colleagues (2019) and the **greybox** package is used to create the pairwise correlation matrix. The long variable names are first shortened to make visualization neater. 
+The **easystats** package by Makowski and his colleagues (2019) and the **greybox** package by Svetunkov and Yves (2022) is used to create the pairwise correlation matrix. The long variable names are first shortened to make visualization neater. 
 ```{r}
 # Make the names shorter
 train_heart$CPT <- train_heart$ChestPainType
@@ -351,6 +354,8 @@ legend("topright", c("Normal","Problem"), fill = c("green","red"))
 text(bp_CPT, 0, round(tCPTp, 0), cex = 1, pos = 3)
 ```
 
+In this data set atypical angina (*ATA*) chest pain type has relatively more normal heart performance (85%). By contrast, asymptomatic (*ASY*) chest pain type has relatively more cases which have heart concerns (79%). 
+
 ```{r}
 train_heart %$%
   ctable(HeartDisease, ChestPainType,
@@ -363,7 +368,7 @@ train_heart %$%
   )
 ```
 
-In this data set asymptomatic chest pain type has relatively more cases which have heart concerns (73%). 
+ 
 ### Fasting blood sugar
 
 ```{r}
@@ -374,6 +379,8 @@ bp_FBS <- barplot(tFBSp, beside = TRUE, col = c("green","red"), ylab="Frequency 
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
 text(bp_FBS, 0, round(tFBSp, 0), cex = 1, pos = 3)
 ```
+
+Patients with blood sugar above 120 mg/dl have heart disease relatively more often (80% versus 48%).The association between the outcome and *A120* should be stronger. 
 
 ```{r}
 train_heart %$%
@@ -387,7 +394,7 @@ train_heart %$%
   )
 
 ```
-Patients with blood sugar above 120 mg/dl have heart disease relatively more often (64% versus 44%). 
+ 
 
 ### Resting electrocardiogram
 ```{r}
@@ -398,6 +405,9 @@ bp_RE <- barplot(tREp, beside = TRUE, col = c("green","red"), ylab="Frequency (%
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
 text(bp_RE, 0, round(tREp, 0), cex = 1, pos = 3)
 ```
+
+All the resting electrocardiogram results have more than a half cases with heart problems diagnosed. 
+The differences between classes, especially between *Normal* and *LVH* are relatively small, so it can be assumed that the association is weak. 
 
 ```{r}
 train_heart %$%
@@ -412,8 +422,7 @@ train_heart %$%
 
 ```
 
-ST and LVH results have more than a half cases with heart problems diagnosed. 
-The differences between classes are relatively small, so it can be assumed that the association is weak. 
+
 ### Exercise angina
 
 ```{r}
@@ -424,6 +433,10 @@ bp_EA <- barplot(tEAp, beside = TRUE, col = c("green","red"), ylab="Frequency (%
 legend("top", c("Normal","Problem"), fill = c("green","red"))
 text(bp_EA, 0, round(tEAp, 0), cex = 1, pos = 3)
 ```
+
+Patients with angina induced by exercise (*Y*) have heart disease relatively more often (85% versus 35%). 
+Here the differences are large, so there might be a strong relationship between *ExerciseAngina* and *HeartDisease*. 
+
 
 ```{r}
 train_heart %$%
@@ -437,8 +450,7 @@ train_heart %$%
   )
 ```
 
-Patients with angina induced by exercise have heart disease relatively more often (83% versus 26%). 
-Here the differences are large, so there might be a strong relationship between *ExerciseAngina* and *HeartDisease*. 
+
 
 ### St Slope
 
@@ -450,6 +462,9 @@ bp_ST <- barplot(tSTp, beside = TRUE, col = c("green","red"), ylab="Frequency (%
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
 text(bp_ST, 0, round(tSTp, 0), cex = 1, pos = 3)
 ```
+
+The proportion of patients with heart problems is largest for cases with the *Flat* and *Down* slopes observed, over the three quarters (82% and 72%). By contrast, the majority of *Up* slope cases are normal (80%). As the differences between these categories of slopes are large, this suggests a strong relation with the outcome variable. 
+
 
 ```{r}
 train_heart %$%
@@ -463,7 +478,6 @@ train_heart %$%
   )
 ```
 
-The number of patients with heart problems is largest for cases with the flat and down slopes observed, over the three quarters. As the differences between these categories of slopes are large, this suggests a strong relation with the outcome variable. 
 
 ## Summing up correlation results
 
@@ -471,7 +485,7 @@ After the exploration made above, we concluded that *ExerciseAngina*, *ST_Slope*
 
 # Dummy codes
 
-The variable *ExerciseAngima* is dichotomous and *ST_Slope*, categorical. In order to use them as predictors, we need to work with dummy codes. 
+The variable *ExerciseAngina* is dichotomous and *ST_Slope*, categorical. In order to use them as predictors, we need to work with dummy codes. 
 
 ```{r}
 dummy_heart <- dummy_cols(train_heart, select_columns = c('ExerciseAngina', 'ST_Slope'))
@@ -875,7 +889,98 @@ confusionMatrix(class, reference = train_heart$HeartDisease)
 
 
 # Visualization of the model 
+The first set of graphs is for the additive *fit3* model.
+```{r}
+fit3train <- glm(HeartDisease ~ ExerciseAngina
+                           + MaxHR 
+                           + ST_Slope
+                           + Oldpeak, 
+              data = train_heart, 
+              family = "binomial")
 
+summary(fit3train)
+```
+
+Not working: https://www.rdocumentation.org/packages/ggiraphExtra/versions/0.3.0/topics/ggPredict 
+```{r}
+ggPredict(fit3train, se = TRUE, interactive = TRUE, digits = 3)
+```
+Trying this out: https://blogs.uoregon.edu/rclub/2016/04/05/plotting-your-logistic-regression-models/
+```{r}
+fit3$coefficients
+```
+Save the coefficients for the equations.
+```{r}
+b0 <- fit3$coefficients[1]
+EA <- fit3$coefficients[2]
+MH <- fit3$coefficients[3]
+STf <- fit3$coefficients[4]
+STd <- fit3$coefficients[5]
+OP <- fit3$coefficients[6]
+```
+
+## Augment the data with fitted values from *fit3*
+```{r}
+tmp <- predict(fit3train, type = "link", se = TRUE)
+train_heart$eta <- tmp$fit
+train_heart$se <- tmp$se.fit
+train_heart$pi <- plogis(tmp$fit)
+
+train_heart %<>%
+  mutate(etaLower = eta - 1.96 * se,
+         etaUpper = eta + 1.96 * se,
+         piLower = plogis(etaLower),
+         piUpper = plogis(etaUpper)
+         )
+```
+
+## Logit of the *fit3*
+```{r}
+ggplot(train_heart, aes(x = MaxHR, y = eta)) +
+  geom_line(aes(color = ST_Slope), lwd = 1) +
+  geom_ribbon(aes(ymin = etaLower, ymax = etaUpper, fill = ST_Slope), alpha = 0.2) +
+  ylab("Logit of Heart Disease") +
+  facet_wrap(vars(ExerciseAngina))
+```
+
+
+```{r}
+ggplot(train_heart, aes(x = Oldpeak, y = eta)) +
+  geom_line(aes(color = ST_Slope), lwd = 1) +
+  geom_ribbon(aes(ymin = etaLower, ymax = etaUpper, fill = ST_Slope), alpha = 0.2) +
+  ylab("Logit of Heart Disease") +
+  facet_wrap(vars(ExerciseAngina))
+```
+
+
+
+```{r}
+ggplot(train_heart, aes(x = MaxHR, y = eta)) +
+  geom_line(aes(color = ExerciseAngina), lwd = 1) +
+  geom_ribbon(aes(ymin = etaLower, ymax = etaUpper, fill = ExerciseAngina), alpha = 0.2) +
+  ylab("Logit of Heart Disease") +
+  facet_wrap(vars(ST_Slope))
+```
+
+
+
+```{r}
+ggplot(train_heart, aes(x = Oldpeak, y = eta)) +
+  geom_line(aes(color = ExerciseAngina), lwd = 1) +
+  geom_ribbon(aes(ymin = etaLower, ymax = etaUpper, fill = ExerciseAngina), alpha = 0.2) +
+  ylab("Logit of Heart Disease") +
+  facet_wrap(vars(ST_Slope))
+```
+
+
+## Probability of *fit3*
+```{r}
+ggplot(train_heart, aes(x = Oldpeak, y = pi)) + 
+  geom_ribbon(aes(ymin = piLower, ymax = piUpper, fill = ExerciseAngina), alpha = 0.2) +
+  geom_line(aes(color = ExerciseAngina), lwd = 1) + 
+  ylab("Probability of Survival") +
+  facet_wrap(vars(ST_Slope))
+```
 # Checking assumptions 
 
 ## Residuals vs Fitted model
@@ -911,6 +1016,7 @@ Makowski, D., Ben-Shachar, M. S., Patil, I., & Lüdecke, D. (2019). Methods and 
 Rousselet, G. A., & Wilcox, R. R. (2020). Reaction times and other skewed distributions: problems with the mean and the median. *Meta-Psychology, 4*. 
 https://doi.org/10.15626/MP.2019.1630
 
+Svetunkov, I. & Yves, R. (2022). *Package ‘greybox’.* Retrieved from https://cran.r-project.org/web/packages/greybox/greybox.pdf. 
 
 
 
