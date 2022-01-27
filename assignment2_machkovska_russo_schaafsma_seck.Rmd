@@ -561,44 +561,52 @@ summary(model_angina)
 
 ## Multiple logistic regression
 
+Now we will start adding up new predictors, one by one, until the five variables are in the model. For the sake of the organization, we will train all the models before and pay attention to their p-values. In the next topic, we will make the comparison among all the four models.  
+
+First one will contain the predictors *ExerciseAngina_Y* and *MaxHR*. As seen in the output bellow, the intercept and the slopes for both of the predictors have tiny p-value and, therefore, are significant. 
 ```{r}
-fit1 <- glm(HeartDisease ~ ExerciseAngina
+fit1 <- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR, 
-              data = train_heart, 
+              data = dummy_heart, 
               family = "binomial")
 
 summary(fit1)
 ```
 
+In the second model, the categorical predictor *ST_slope*, presented as the dummy codes *ST_Slope_Down* and *ST_Slope_Flat*, will be added in the model. All the slopes are significant, but the intercept has a p-value bigger than 0.05. 
 ```{r}
-fit2 <- glm(HeartDisease ~ ExerciseAngina
+fit2 <- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
-                           + ST_Slope, 
-              data = train_heart, 
+                           + ST_Slope_Down
+                           + ST_Slope_Flat, 
+              data = dummy_heart, 
               family = "binomial")
 
 summary(fit2)
 ```
 
+The numeric predictor *Oldpeak* is the next one to join the model. As **fit2**, this model has significant slopes, but a non-significant intercept. 
 ```{r}
-fit3 <- glm(HeartDisease ~ ExerciseAngina
+fit3 <- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
-                           + ST_Slope
+                           + ST_Slope_Down
+                           + ST_Slope_Flat
                            + Oldpeak, 
-              data = train_heart, 
+              data = dummy_heart, 
               family = "binomial")
 
 summary(fit3)
 ```
-
+Lastly, the numeric predictor *Age* will be added. It does not show a significant slope (p-value = 0.201367). We will check in the next topic if it is worth adding *Age* to the model. 
 
 ```{r}
-fit4 <- glm(HeartDisease ~ ExerciseAngina
+fit4 <- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
-                           + ST_Slope
+                           + ST_Slope_Down
+                           + ST_Slope_Flat
                            + Oldpeak
                            + Age, 
-              data = train_heart, 
+              data = dummy_heart, 
               family = "binomial")
 
 summary(fit4)
@@ -608,12 +616,16 @@ summary(fit4)
 
 ## Change in deviance
 
-Testing the change in deviance
-The improvement is clear until the model 3, when the deviance decreases significantly. Model 4 shows a small decrease in the deviance, but it is doubtful whether it is worth complicating the model by so little improvement.
-We will test for information criteria in the next section - a measurement that penalizes the addition of new predictors - to get better insights about that.
+We will first test the change in deviance in order to choose the best model. As soon as we are talking about deviance, we should choose the model that has the smallest result for the residual deviance.  
+When we use the function anova, we compare the change between **fit1** and **fit2**; then between **fit2** and **fit3**; and lastly, between **fit3** and **fit4**.   
+The improvement is clear until **fit3**, when the deviance decreases significantly. **Fit4** shows a small decrease in the deviance, but it is not significant (p-value = 0.201).  
+By the criterion of parsimony, it does not worth to add complexity to the model, if the decrease in the deviance is not significant.
+By this comparison criterion, *Age* should not be added and, therefore, *fit3* is the best for now. 
+
 ```{r}
 anova(fit1, fit2, fit3, fit4, test = "Chisq") 
 ```
+
 ## Information criteria
 Comparing information criteria.
 
@@ -623,7 +635,7 @@ AIC(fit1, fit2, fit3, fit4)
 ```
 BIC follows the same narrative as AIC. 
 ```{r}
-BIC(fit1, fit2, fit3)
+BIC(fit1, fit2, fit3, fit4)
 ```
 ## Cross-validation
 
@@ -673,6 +685,8 @@ fit5 <- glm(HeartDisease ~ ExerciseAngina
 
 summary(fit5)
 ```
+
+
 ```{r}
 fit6 <- glm(HeartDisease ~ ExerciseAngina
                            + MaxHR 
@@ -684,6 +698,7 @@ fit6 <- glm(HeartDisease ~ ExerciseAngina
 
 summary(fit6)
 ```
+
 ```{r}
 fit7 <- glm(HeartDisease ~ ExerciseAngina
                            + MaxHR 
@@ -775,6 +790,7 @@ anova(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11,
 ```{r}
 AIC(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11)
 ```
+
 ```{r}
 BIC(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11)
 ```
@@ -841,7 +857,7 @@ c(fit5 = cross5$acc.cv, fit6 = cross6$acc.cv, fit7 = cross7$acc.cv,
 # Confusion Matrix
 
 ```{r}
-probab <- predict(fit3, newdata = train_heart, type = "response")
+probab <- predict(fit3, newdata = dummy_heart, type = "response")
 
 class <- ifelse(probab > 0.5, "Prob", "Norm") %>% factor()
 
