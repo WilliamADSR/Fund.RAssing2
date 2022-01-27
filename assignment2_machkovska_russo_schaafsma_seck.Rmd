@@ -31,6 +31,7 @@ library(caret)
 library(greybox)
 library(summarytools)
 library(DAAG)
+library(fastDummies)
 ```
 
 # Research question and relevance 
@@ -463,9 +464,32 @@ The number of patients with heart problems is largest for cases with the flat an
 
 After the exploration made above, we concluded that *ExerciseAngina*, *ST_Slope*, *MaxHR*, *Oldpeak*, *Age* and *MaxHR* are the variables that show strongest correlation with our outcome variable, *HeartDisease*. Therefore, we are going to look for the best model from these variables. 
 
+# Dummy codes
+
+The variable *ExerciseAngima* is dichotomous and *ST_Slope*, categorical. In order to use them as predictors, we need to work with dummy codes. 
+
+```{r}
+dummy_heart <- dummy_cols(train_heart, select_columns = c('ExerciseAngina', 'ST_Slope'))
+```
+
+Now we will clean up the dataset and see how it look like.
+
+```{r}
+# Selecting variables we will use
+dummy_heart <- dummy_heart %>% 
+               select(Age, MaxHR, Oldpeak,
+                      ExerciseAngina, ExerciseAngina_N, ExerciseAngina_Y,
+                      ST_Slope, ST_Slope_Up, ST_Slope_Down, ST_Slope_Up, ST_Slope_Flat,
+                      HeartDisease)
+
+# Visualizing dataset
+head(dummy_heart) %>% 
+  knitr::kable(format = "markdown", digits= 1, padding = 30, align = 'c')
+```
+
 # Model building
 
-Starting with only one predictor, to explore how the variables behave ina simple model. 
+Starting with only one predictor, to explore how the variables behave in a simple model. 
 
 ## Simple logistic regression
 
@@ -535,6 +559,7 @@ fit2 <- glm(HeartDisease ~ ExerciseAngina
 
 summary(fit2)
 ```
+
 ```{r}
 fit3 <- glm(HeartDisease ~ ExerciseAngina
                            + MaxHR 
@@ -545,6 +570,8 @@ fit3 <- glm(HeartDisease ~ ExerciseAngina
 
 summary(fit3)
 ```
+
+
 ```{r}
 fit4 <- glm(HeartDisease ~ ExerciseAngina
                            + MaxHR 

@@ -1659,28 +1659,38 @@ summary(fit4)</code></pre>
 </div>
 <div id="cross-validation" class="section level2" number="11.3">
 <h2><span class="header-section-number">11.3</span> Cross-validation</h2>
-<p>Not working. I will check later how to fix it.</p>
+<p>Result model 1 here</p>
 <pre class="r"><code>set.seed(42)
 cross1 &lt;- CVbinary(fit1, nfolds = 10)</code></pre>
 <pre><code>## 
 ## Fold:  1 5 9 10 4 2 8 7 3 6
 ## Internal estimate of accuracy = 0
 ## Cross-validation estimate of accuracy = 0</code></pre>
+<p>Result model 2 here</p>
 <pre class="r"><code>set.seed(42)
 cross2 &lt;- CVbinary(fit2, nfolds = 10)</code></pre>
 <pre><code>## 
 ## Fold:  1 5 9 10 4 2 8 7 3 6
 ## Internal estimate of accuracy = 0
 ## Cross-validation estimate of accuracy = 0</code></pre>
+<p>Result model 3 here</p>
 <pre class="r"><code>set.seed(42)
 cross3 &lt;- CVbinary(fit3, nfolds = 10)</code></pre>
 <pre><code>## 
 ## Fold:  1 5 9 10 4 2 8 7 3 6
 ## Internal estimate of accuracy = 0
 ## Cross-validation estimate of accuracy = 0</code></pre>
-<pre class="r"><code>c(fit1 = cross1$acc.cv, fit2 = cross2$acc.cv, fit3 = cross3$acc.cv)</code></pre>
-<pre><code>## fit1 fit2 fit3 
-##    0    0    0</code></pre>
+<p>Result model 4 here</p>
+<pre class="r"><code>set.seed(42)
+cross4 &lt;- CVbinary(fit4, nfolds = 10)</code></pre>
+<pre><code>## 
+## Fold:  1 5 9 10 4 2 8 7 3 6
+## Internal estimate of accuracy = 0
+## Cross-validation estimate of accuracy = 0</code></pre>
+<p>Comaprison all results here</p>
+<pre class="r"><code>c(fit1 = cross1$acc.cv, fit2 = cross2$acc.cv, fit3 = cross3$acc.cv, fit4 = cross4$acc.cv)</code></pre>
+<pre><code>## fit1 fit2 fit3 fit4 
+##    0    0    0    0</code></pre>
 </div>
 </div>
 <div id="model-comparison---interaction" class="section level1" number="12">
@@ -2066,12 +2076,61 @@ summary(fit11)</code></pre>
 </div>
 <div id="cross-validation-1" class="section level2" number="12.3">
 <h2><span class="header-section-number">12.3</span> Cross Validation</h2>
+<p>Result model 5 here</p>
 <pre class="r"><code>set.seed(42)
 cross5 &lt;- CVbinary(fit5, nfolds = 10)</code></pre>
 <pre><code>## 
 ## Fold:  1 5 9 10 4 2 8 7 3 6
 ## Internal estimate of accuracy = 0
 ## Cross-validation estimate of accuracy = 0</code></pre>
+<p>Result model 6 here</p>
+<pre class="r"><code>set.seed(42)
+cross6 &lt;- CVbinary(fit6, nfolds = 10)</code></pre>
+<pre><code>## 
+## Fold:  1 5 9 10 4 2 8 7 3 6
+## Internal estimate of accuracy = 0
+## Cross-validation estimate of accuracy = 0</code></pre>
+<p>Result model 7 here</p>
+<pre class="r"><code>set.seed(42)
+cross7 &lt;- CVbinary(fit7, nfolds = 10)</code></pre>
+<pre><code>## 
+## Fold:  1 5 9 10 4 2 8 7 3 6
+## Internal estimate of accuracy = 0
+## Cross-validation estimate of accuracy = 0</code></pre>
+<p>Result model 8 here</p>
+<pre class="r"><code>set.seed(42)
+cross8 &lt;- CVbinary(fit8, nfolds = 10)</code></pre>
+<pre><code>## 
+## Fold:  1 5 9 10 4 2 8 7 3 6
+## Internal estimate of accuracy = 0
+## Cross-validation estimate of accuracy = 0</code></pre>
+<p>Result model 9 here</p>
+<pre class="r"><code>set.seed(42)
+cross9 &lt;- CVbinary(fit9, nfolds = 10)</code></pre>
+<pre><code>## 
+## Fold:  1 5 9 10 4 2 8 7 3 6
+## Internal estimate of accuracy = 0
+## Cross-validation estimate of accuracy = 0</code></pre>
+<p>Result model 10 here</p>
+<pre class="r"><code>set.seed(42)
+cross10 &lt;- CVbinary(fit10, nfolds = 10)</code></pre>
+<pre><code>## 
+## Fold:  1 5 9 10 4 2 8 7 3 6
+## Internal estimate of accuracy = 0
+## Cross-validation estimate of accuracy = 0</code></pre>
+<p>Result model 11 here</p>
+<pre class="r"><code>set.seed(42)
+cross11 &lt;- CVbinary(fit11, nfolds = 10)</code></pre>
+<pre><code>## 
+## Fold:  1 5 9 10 4 2 8 7 3 6
+## Internal estimate of accuracy = 0
+## Cross-validation estimate of accuracy = 0</code></pre>
+<p>Comparing all the results here</p>
+<pre class="r"><code>c(fit5 = cross5$acc.cv, fit6 = cross6$acc.cv, fit7 = cross7$acc.cv, 
+                        fit8 = cross8$acc.cv, fit9 = cross9$acc.cv, 
+                        fit10 = cross10$acc.cv, fit11 = cross11$acc.cv)</code></pre>
+<pre><code>##  fit5  fit6  fit7  fit8  fit9 fit10 fit11 
+##     0     0     0     0     0     0     0</code></pre>
 </div>
 </div>
 <div id="cross-validation-2" class="section level1" number="13">
