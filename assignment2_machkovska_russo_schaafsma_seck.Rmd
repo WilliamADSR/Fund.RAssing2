@@ -35,6 +35,7 @@ library(fastDummies)
 library(devtools)
 library(ggiraph) 
 library(ggiraphExtra)
+library(pROC)
 ```
 
 # Research question and relevance 
@@ -913,8 +914,10 @@ c(fit3 = cross3$acc.cv, fit5 = cross5$acc.cv, fit6 = cross6$acc.cv,
 
 # Predictions 
 
-Now we will start working with the test set. We will make predictions plugging our best model *fit10* to the test set in the probability scale. 
-We will use the 50% probability as the cut off. If the probability of success is higher than 50%, you are predicted to be in the success group; if it is lower or equal to 50% you are predicted to be in the failure group.
+Now we will start working with the test set. We will make predictions in the probability scale plugging in our best model *fit10* to the test set.  
+After getting the probabilities prediction, we need to set a threshold in order to classify the outcomes in the two groups of heart disease: the normal group (the ones with healthy heart) and the problematic group (the ones with heart disease).  
+We will use the 50% probability as the cut off. As we are trying to predict heart disease, we will consider the success group as the problematic one ("Prob").  
+If the (predicted) probability is higher than 50%, the person will be classified as having heart disease; if the (predicted) probability is lower or equal to 50%, the person is classified in the group of normal hearts. 
 ```{r}
 # Creating the dummy codes in the test set
 test_heart_dummy <- dummy_cols(test_heart, 
@@ -925,17 +928,29 @@ probab <- predict(fit10, newdata = test_heart_dummy, type = "response")
 
 # Setting a cut off at 50%
 class <- ifelse(probab > 0.5, "Prob", "Norm") %>% factor()
-
-# Class predictions
-table(class)
 ```
 
 # Confusion Matrix
 
+
+'Positive' Class : Norm  - specificity e sensitivity are switched 
+
 ```{r}
 confusionMatrix(class, reference = test_heart_dummy$HeartDisease)
 ```
+## Sensitivity 
 
+0.9010 
+
+## Specificity
+
+0.8049 
+
+## Accuracy
+
+0.8579  
+
+## ROC Curve
 
 # Visualization of the model 
 The first set of graphs is for the additive *fit3* model.
