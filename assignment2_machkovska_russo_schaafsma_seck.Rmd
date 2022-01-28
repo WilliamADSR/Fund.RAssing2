@@ -887,6 +887,20 @@ c(fit3 = cross3$acc.cv, fit5 = cross5$acc.cv, fit6 = cross6$acc.cv,
                         fit11 = cross11$acc.cv)
 ```
 
+# Checking assumptions 
+
+## Residuals vs Fitted model
+
+## Normal Q-Q plot
+
+## Scale-Location 
+
+## Cook's distance
+
+## Residuals vs Leverage
+
+## Influential cases
+
 # Cross Validation
 
 # Confusion Matrix
@@ -997,19 +1011,7 @@ ggplot(train_heart, aes(x = Oldpeak, y = pi)) +
   ylab("Probability of Survival") +
   facet_wrap(vars(ST_Slope))
 ```
-# Checking assumptions 
 
-## Residuals vs Fitted model
-
-## Normal Q-Q plot
-
-## Scale-Location 
-
-## Cook's distance
-
-## Residuals vs Leverage
-
-## Influential cases
 
 # Interpreting the final model
 
