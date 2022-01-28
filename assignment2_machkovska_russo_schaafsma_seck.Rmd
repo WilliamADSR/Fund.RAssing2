@@ -108,19 +108,19 @@ This data set holds 12 variables of which **Heart disease** is our dichotomous o
 *LVH*: This activity in the heart represents valve problems which increasingly thickens the wall of the heart's main pumping chamber. It's the most common cause of high blood pressure which may cause heart failure.  
 
 
-**Variable 8**: *MaxHR*.  
+**Variable 8**: *MaxHR*.  It's a numeric variable that represents the patients' maximum heart rate. Maximum heart rate is related to age since it's calculated by subtracting 220 by one's age. Exceeding the maximum heart rate, depending on one's age, is dangerous for the heart and may induce heart failure. Logically, a 70-year-old patient has a lower maximum heart rate than a 30-year-old patient.
 
 
-**Variable 9**: *Exercise Angina*.  
+**Variable 9**: *Exercise Angina*.  It's a categorical variable having two categories. This variable takes into account whether people experience angina after exercise. Y = yes and N = no. People that experience angina after exercise may be more vulnerable to heart disease.
 
 
-**Variable 10**: *Oldpeak*.  
+**Variable 10**: *Oldpeak*.  It's a numeric variable which indicates that the trace within the ST segment is abnormally below the baseline. The value is measured in depression. ST segment depression correlates to people with angina and thus may predict heart failure.
 
 
-**Variable 11**: *ST_slope*.  
+**Variable 11**: *ST_slope*.  It's a categorical variable which indicates whether the slope between the S and the T is "Down", "Flat" or "Up". Here a downsloping ST segment is very bad since it's a manifestation of severe myocardial ischemia which may induce heart failure.
 
 
-**Variable 12**: *HeartDisease*.  
+**Variable 12**: *HeartDisease*.  It's a dichotomous variable and our outcome variable is this assignment. 0 means 'no heart disease / normal' 1 means 'heart disease'
 
 # Inspecting the dataset and cleaning up
 
