@@ -830,12 +830,20 @@ BIC(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11)
 ```
 ## Cross Validation
 
-Result model 5 here
+Result model 3 here
 
 ```{r}
 set.seed(42)
 cross3 <- CVbinary(fit3, nfolds = 10)
 ```
+
+Result model 5 here.
+
+```{r}
+set.seed(42)
+cross5 <- CVbinary(fit5, nfolds = 10)
+```
+
 Result model 6 here
 
 ```{r}
@@ -903,18 +911,29 @@ c(fit3 = cross3$acc.cv, fit5 = cross5$acc.cv, fit6 = cross6$acc.cv,
 
 # Cross Validation
 
-# Confusion Matrix
+# Predictions 
 
+Now we will start working with the test set. We will make predictions plugging our best model *fit10* to the test set in the probability scale. 
+We will use the 50% probability as the cut off. If the probability of success is higher than 50%, you are predicted to be in the success group; if it is lower or equal to 50% you are predicted to be in the failure group.
 ```{r}
-probab <- predict(fit3, newdata = dummy_heart, type = "response")
+# Creating the dummy codes in the test set
+test_heart_dummy <- dummy_cols(test_heart, 
+                        select_columns = c('ExerciseAngina', 'ST_Slope'))
 
+# Predictions in the probability scale
+probab <- predict(fit10, newdata = test_heart_dummy, type = "response")
+
+# Setting a cut off at 50%
 class <- ifelse(probab > 0.5, "Prob", "Norm") %>% factor()
 
+# Class predictions
 table(class)
 ```
 
+# Confusion Matrix
+
 ```{r}
-confusionMatrix(class, reference = train_heart$HeartDisease)
+confusionMatrix(class, reference = test_heart_dummy$HeartDisease)
 ```
 
 
