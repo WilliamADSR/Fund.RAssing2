@@ -633,8 +633,7 @@ summary(fit4)
 We will first test the change in deviance in order to choose the best model. As soon as we are talking about deviance, we should choose the model that has the smallest result for the residual deviance.  
 When we use the function anova, we compare the change between **fit1** and **fit2**; then between **fit2** and **fit3**; and lastly, between **fit3** and **fit4**.   
 The improvement is clear until **fit3**, when the deviance decreases significantly. **Fit4** shows a small decrease in the deviance, but it is not significant (p-value = 0.201).  
-By the criterion of parsimony, it does not worth to add complexity to the model, if the decrease in the deviance is not significant.
-By this comparison criterion, *Age* should not be added and, therefore, *fit3* is the best for now. 
+By the criterion of parsimony, it is not worth adding complexity to the model, if the decrease in the deviance is not significant. *Age* should not be added and, therefore, *fit3* is the best for now. 
 
 ```{r}
 anova(fit1, fit2, fit3, fit4, test = "Chisq") 
@@ -649,7 +648,7 @@ AIC, however, increases for *fit4*, confirming that *Age* is not worth being add
 ```{r}
 AIC(fit1, fit2, fit3, fit4)
 ```
-BIC follows the same narrative as AIC and, therefore, *fit3* is the best.  
+BIC follows the same narrative as AIC and, therefore, *fit3* is the best model.  
 ```{r}
 BIC(fit1, fit2, fit3, fit4)
 ```
@@ -689,108 +688,115 @@ c(fit1 = cross1$acc.cv, fit2 = cross2$acc.cv, fit3 = cross3$acc.cv, fit4 = cross
 ```
 
 # Model building - interaction
-Now we have chosen the best additive model, we will add interactions to try to improve it. 
+
+After choosing **fit3** as the best additive model, we will add interactions to try to improve it. As it was done before, we will train all the models before, analyse the p-values and, later on, make the model comparison.  
+
+We will start with the interaction between the two first predictors, *ExerciseAngina_Y* and *MaxHR*. 
+The output bellow shows that after adding the new term, the predictor *ExerciseAngina_T* is no longer significant (p-value = 0.102). The interaction *ExerciseAngina_Y* and *MaxHR* is also not significant (p-value: 0.511).
 
 ```{r}
-fit5 <- glm(HeartDisease ~ ExerciseAngina
+fit5 <- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
-                           + ST_Slope
+                           + ST_Slope_Down
+                           + ST_Slope_Flat
                            + Oldpeak
-                           + ExerciseAngina * MaxHR,
-              data = train_heart, 
+                           + ExerciseAngina_Y * MaxHR,
+              data = dummy_heart, 
               family = "binomial")
 
 summary(fit5)
 ```
-
+After adding an interaction term between *ExerciseAngina_Y* and *ST_Slope_Down* and another one between *ExerciseAngina_Y* and *ST_Slope_Flat*, we see that *ST_Slope_Down* itself is no longer significant (p-value = 0.441). The two interaction terms are also not significant. 
 
 ```{r}
-fit6 <- glm(HeartDisease ~ ExerciseAngina
+fit6 <- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
-                           + ST_Slope
+                           + ST_Slope_Down
+                           + ST_Slope_Flat
                            + Oldpeak
-                           + ExerciseAngina * ST_Slope,
-              data = train_heart, 
+                           + ExerciseAngina_Y*ST_Slope_Down
+                           + ExerciseAngina_Y*ST_Slope_Flat,
+              data = dummy_heart, 
               family = "binomial")
 
 summary(fit6)
 ```
+The output shows that the interaction between *ExerciseAngina_Y* and *Oldpeak* is not significant (p-value = 0.457).
 
 ```{r}
-fit7 <- glm(HeartDisease ~ ExerciseAngina
+fit7 <- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
-                           + ST_Slope
+                           + ST_Slope_Down
+                           + ST_Slope_Flat
                            + Oldpeak
-                           + ExerciseAngina * Oldpeak,
-              data = train_heart, 
+                           + ExerciseAngina_Y * Oldpeak,
+              data = dummy_heart, 
               family = "binomial")
 
 summary(fit7)
 ```
+It does not seem that adding interaction between *MaxHR* and *ST_Slope* makes the model better. After doing that, *MaxHR*, *ST_Slope_Down* and *ST_Slope_Flat* are no longer significant. The interaction term *MaxHR* and *ST_Slope_Down* is not significant (p-value = 0.311), neither is *MaxHR* and *ST_Slope_Flat* (p-value = 0.054).
 
 ```{r}
-fit7 <- glm(HeartDisease ~ ExerciseAngina
+fit8 <- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
-                           + ST_Slope
+                           + ST_Slope_Down
+                           + ST_Slope_Flat
                            + Oldpeak
-                           + MaxHR * ST_Slope,
-              data = train_heart, 
-              family = "binomial")
-
-summary(fit7)
-```
-
-```{r}
-fit8 <- glm(HeartDisease ~ ExerciseAngina
-                           + MaxHR 
-                           + ST_Slope
-                           + Oldpeak
-                           + MaxHR * Oldpeak,
-              data = train_heart, 
+                           + MaxHR * ST_Slope_Down
+                           + MaxHR * ST_Slope_Flat,
+              data = dummy_heart, 
               family = "binomial")
 
 summary(fit8)
 ```
-
+The interaction between *MaxHR* and *Oldpeak* is not significant (p-value = 0.474) and, after adding it, *Oldpeak* is not significant anymore (p-value = 0.906).   
 
 ```{r}
-fit9 <- glm(HeartDisease ~ ExerciseAngina
+fit9 <- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
-                           + ST_Slope
+                           + ST_Slope_Down
+                           + ST_Slope_Flat
                            + Oldpeak
-                           + ST_Slope * Oldpeak,
-              data = train_heart, 
+                           + MaxHR * Oldpeak,
+              data = dummy_heart, 
               family = "binomial")
 
 summary(fit9)
 ```
+A significant interaction was found. The interaction term *ST_Slope_Down* and *Oldpeak* has a p-value of 0.0266, and *ST_Slope_Flat* and *Oldpeak*, a very tiny one (2.91e-05).
 
 ```{r}
-fit10 <- glm(HeartDisease ~ ExerciseAngina
+fit10 <- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
-                           + ST_Slope
+                           + ST_Slope_Down
+                           + ST_Slope_Flat
                            + Oldpeak
-                           + ST_Slope * Oldpeak
-                           + ExerciseAngina * Oldpeak,
-              data = train_heart, 
+                           + ST_Slope_Down * Oldpeak
+                           + ST_Slope_Flat * Oldpeak,
+              data = dummy_heart, 
               family = "binomial")
 
 summary(fit10)
 ```
-
+And lastly, we will train a model with interaction terms for all the predictors. The output is not good: most of the slopes are not significant anymore. 
 
 ```{r}
-fit11 <- glm(HeartDisease ~ ExerciseAngina
+fit11 <- glm(HeartDisease ~ ExerciseAngina_Y
                            + MaxHR 
-                           + ST_Slope
+                           + ST_Slope_Down
+                           + ST_Slope_Flat
                            + Oldpeak
-                           + ExerciseAngina * MaxHR
-                           + ExerciseAngina * ST_Slope
-                           + ExerciseAngina * Oldpeak
-                           + MaxHR * ST_Slope
+                           + ExerciseAngina_Y * MaxHR
+                           + ExerciseAngina_Y * ST_Slope_Down
+                           + ExerciseAngina_Y * ST_Slope_Flat
+                           + ExerciseAngina_Y * Oldpeak
+                           + MaxHR * ST_Slope_Down
+                           + MaxHR * ST_Slope_Flat
                            + MaxHR * Oldpeak
-                           + ST_Slope * Oldpeak,
-              data = train_heart, 
+                           + ST_Slope_Down * Oldpeak
+                           + ST_Slope_Flat * Oldpeak,
+              data = dummy_heart, 
               family = "binomial")
 
 summary(fit11)
