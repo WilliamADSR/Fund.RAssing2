@@ -242,7 +242,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Logistic regression assignment, group 3</h1>
 <h4 class="author">Elizabeth Machkovska, Letícia Marçal Russo, Madio Seck, William Schaafsma</h4>
-<h4 class="date">28 January, 2022</h4>
+<h4 class="date">30 January, 2022</h4>
 
 </div>
 
@@ -269,7 +269,8 @@ library(DAAG)
 library(fastDummies)
 library(devtools)
 library(ggiraph) 
-library(ggiraphExtra)</code></pre>
+library(ggiraphExtra)
+library(pROC)</code></pre>
 </div>
 <div id="research-question-and-relevance" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Research question and relevance</h1>
@@ -2299,16 +2300,73 @@ cross11 &lt;- CVbinary(fit11, nfolds = 10)</code></pre>
 </div>
 <div id="predictions" class="section level1" number="17">
 <h1><span class="header-section-number">17</span> Predictions</h1>
-<p>We will use the 50% probability as the cut off. If the probability of success is higher than 50%, you are predicted to be in the success group; if it is lower or equal to 50% you are predicted to be in the failure group.</p>
-<pre class="r"><code>#probab &lt;- predict(fit10, newdata = test_heart, type = &quot;response&quot;)
+<p>Now we will start working with the test set. We will make predictions in the probability scale plugging in our best model <em>fit10</em> to the test set.<br />
+After getting the probabilities prediction, we need to set a threshold in order to classify the outcomes in the two groups of heart disease: the normal group (the ones with healthy heart) and the problematic group (the ones with heart disease).<br />
+We will use the 50% probability as the cut off. As we are trying to predict heart disease, we will consider the success group as the problematic one (“Prob”).<br />
+If the (predicted) probability is higher than 50%, the person will be classified as having heart disease; if the (predicted) probability is lower or equal to 50%, the person is classified in the group of normal hearts.</p>
+<pre class="r"><code># Creating the dummy codes in the test set
+test_heart_dummy &lt;- dummy_cols(test_heart, 
+                        select_columns = c(&#39;ExerciseAngina&#39;, &#39;ST_Slope&#39;))
 
-#class &lt;- ifelse(probab &gt; 0.5, &quot;Prob&quot;, &quot;Norm&quot;) %&gt;% factor()
+# Predictions in the probability scale
+probab &lt;- predict(fit10, newdata = test_heart_dummy, type = &quot;response&quot;)
 
-#table(class)</code></pre>
+# Setting a cut off at 50%
+class &lt;- ifelse(probab &gt; 0.5, &quot;Prob&quot;, &quot;Norm&quot;) %&gt;% factor()</code></pre>
 </div>
 <div id="confusion-matrix" class="section level1" number="18">
 <h1><span class="header-section-number">18</span> Confusion Matrix</h1>
-<pre class="r"><code>#confusionMatrix(class, reference = test_heart$HeartDisease)</code></pre>
+<p>We will check the performance of our model with a confusion matrix. The test set has 183 observations, of which 66 are true negatives; 91 are true positives; 10 are false negatives; and 16 are false positives.<br />
+With this result, we can interpret the <em>sensitivity</em>, <em>specificity</em> and <em>accuracy</em>. Before doing so, it is important to pay attention to the last line of the output.<br />
+“‘Positive’ Class : Norm” means that the machine is considering <em>Norm</em> as the success group. As said in the topic above, our analysis consider <em>Prob</em> as the success group, as soon as we are predicting heart disease -but R does not know it. Because of that, we will have to switch the output for specificity and sensitivity.</p>
+<pre class="r"><code>confusionMatrix(class, reference = test_heart_dummy$HeartDisease)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction Norm Prob
+##       Norm   66   10
+##       Prob   16   91
+##                                          
+##                Accuracy : 0.8579         
+##                  95% CI : (0.7988, 0.905)
+##     No Information Rate : 0.5519         
+##     P-Value [Acc &gt; NIR] : &lt;2e-16         
+##                                          
+##                   Kappa : 0.7108         
+##                                          
+##  Mcnemar&#39;s Test P-Value : 0.3268         
+##                                          
+##             Sensitivity : 0.8049         
+##             Specificity : 0.9010         
+##          Pos Pred Value : 0.8684         
+##          Neg Pred Value : 0.8505         
+##              Prevalence : 0.4481         
+##          Detection Rate : 0.3607         
+##    Detection Prevalence : 0.4153         
+##       Balanced Accuracy : 0.8529         
+##                                          
+##        &#39;Positive&#39; Class : Norm           
+## </code></pre>
+<div id="sensitivity" class="section level2" number="18.1">
+<h2><span class="header-section-number">18.1</span> Sensitivity</h2>
+<p>Sensitivity is a measure of how well we can predict membership in the positive class or, in other words, the true positives. Our model <em>fit10</em> has a sensitivity equal to 0.901. This means that there is a 90,1% probability that the model will predict heart disease when the person inideed has heart problems.</p>
+</div>
+<div id="specificity" class="section level2" number="18.2">
+<h2><span class="header-section-number">18.2</span> Specificity</h2>
+<p>On the other hand, specificity is a measure of how well we can predict a negative classification or, in other words, the true negatives. It is important to say that sensitivity and specificity are not complementary (they do not sum up 100% together), and a good model should have a high sensitivity and a high specificity.<br />
+<em>Fit10</em> has a specificity of 0.8049. This means that there is a 80,49% chance that the model will indicate no heart disease when the person indeed has a normal heart.</p>
+</div>
+<div id="accuracy" class="section level2" number="18.3">
+<h2><span class="header-section-number">18.3</span> Accuracy</h2>
+<p>0.8579</p>
+</div>
+<div id="error-rate" class="section level2" number="18.4">
+<h2><span class="header-section-number">18.4</span> Error rate</h2>
+<p>1- accuracy</p>
+</div>
+<div id="roc-curve" class="section level2" number="18.5">
+<h2><span class="header-section-number">18.5</span> ROC Curve</h2>
+</div>
 </div>
 <div id="visualization-of-the-model" class="section level1" number="19">
 <h1><span class="header-section-number">19</span> Visualization of the model</h1>

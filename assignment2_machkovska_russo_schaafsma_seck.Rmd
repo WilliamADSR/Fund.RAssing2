@@ -933,27 +933,35 @@ class <- ifelse(probab > 0.5, "Prob", "Norm") %>% factor()
 # Confusion Matrix
 
 We will check the performance of our model with a confusion matrix. The test set has 183 observations, of which 66 are true negatives; 91 are true positives; 10 are false negatives; and 16 are false positives.  
-With this result, we can interpret the *sensitivity*, *specificity* and *accuracy*. Before doing so, it is important to pay attention to the last line of the output.     
-"'Positive' Class : Norm" means that the machine is considering *Norm* as the success group. As said in the topic above, our analysis consider *Prob* as the success group, as soon as we are predicting heart disease -but R does not know that. Because of that, we will have to switch the ouput for  specificity e sensitivity.
+
+With this result, we can interpret the *sensitivity*, *specificity* and *accuracy*. Before doing so, it is important to pay attention to the last line of the output.   
+
+"'Positive' Class : Norm" means that the machine is considering *Norm* as the success group. As said in the topic above, our analysis consider *Prob* as the success group, as soon as we are predicting heart disease -but R does not know it. Because of that, we will have to switch the output for specificity and sensitivity.
 
 ```{r}
 confusionMatrix(class, reference = test_heart_dummy$HeartDisease)
 ```
 ## Sensitivity 
 
-0.9010 
+Sensitivity is a measure of how well we can predict membership in the positive class or, in other words, the true positives. Our model *fit10* has a sensitivity equal to 0.901. This means that there is a 90,1% probability that the model will predict heart disease when the person inideed has heart problems. 
 
 ## Specificity
 
-0.8049 
+On the other hand, specificity is a measure of how well we can predict a negative classification or, in other words, the true negatives. It is important to say that sensitivity and specificity are not complementary (they do not sum up 100% together), and a good model should have a high sensitivity and a high specificity.  
+
+*Fit10* has a specificity of 0.8049. This means that there is a 80,49% chance that the model will indicate no heart disease when the person indeed has a normal heart. 
 
 ## Accuracy
 
-0.8579  
+Accuracy is the proportion of cases we correctly classified: it is the sum of the true positive and true negatives divided total result. *Fit10* has an accuracy of 0.8579, which means that 85,79% chance of making a true prediction, whether negative or positive.
 
 ## Error rate
 
-1- accuracy 
+The error rate speaks for itself and it is the proportion of cases that the model incorrectly predicts. Accuracy is complementary to accuracy: it is calculated by 1 - accuracy. it also can be calculated as the sum of false positives and false negatives divided by the total result.  
+
+*Fit10* has an error rate of 0.1421 and, therefore, has 14,21% probability of making a false prediction.  
+
+A good mdoel has a high accuracy and low error rate. 
 
 ## ROC Curve
 
