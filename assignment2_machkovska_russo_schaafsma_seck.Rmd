@@ -932,8 +932,9 @@ class <- ifelse(probab > 0.5, "Prob", "Norm") %>% factor()
 
 # Confusion Matrix
 
-
-'Positive' Class : Norm  - specificity e sensitivity are switched 
+We will check the performance of our model with a confusion matrix. The test set has 183 observations, of which 66 are true negatives; 91 are true positives; 10 are false negatives; and 16 are false positives.  
+With this result, we can interpret the *sensitivity*, *specificity* and *accuracy*. Before doing so, it is important to pay attention to the last line of the output.     
+"'Positive' Class : Norm" means that the machine is considering *Norm* as the success group. As said in the topic above, our analysis consider *Prob* as the success group, as soon as we are predicting heart disease -but R does not know that. Because of that, we will have to switch the ouput for  specificity e sensitivity.
 
 ```{r}
 confusionMatrix(class, reference = test_heart_dummy$HeartDisease)
@@ -949,6 +950,10 @@ confusionMatrix(class, reference = test_heart_dummy$HeartDisease)
 ## Accuracy
 
 0.8579  
+
+## Error rate
+
+1- accuracy 
 
 ## ROC Curve
 
