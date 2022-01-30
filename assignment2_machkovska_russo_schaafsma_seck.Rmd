@@ -961,7 +961,7 @@ The error rate speaks for itself and it is the proportion of cases that the mode
 
 *Fit10* has an error rate of 0.1421 and, therefore, has 14,21% probability of making a false prediction.  
 
-A good mdoel has a high accuracy and low error rate. 
+A good model has a high accuracy and low error rate. 
 
 ## ROC Curve
 
