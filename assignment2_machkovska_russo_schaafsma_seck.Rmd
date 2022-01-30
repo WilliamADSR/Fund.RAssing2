@@ -18,6 +18,7 @@ output:
 # Packages
 ```{r libraries, warning = FALSE, message = FALSE}
 library(ggplot2)
+library(tidyr)
 library(GGally)
 library(readr)
 library(dbplyr)
@@ -32,9 +33,6 @@ library(greybox)
 library(summarytools)
 library(DAAG)
 library(fastDummies)
-library(devtools)
-library(ggiraph) 
-library(ggiraphExtra)
 library(pROC)
 ```
 
@@ -293,12 +291,8 @@ train_heart %>%
        )
 ```
 
-What is this code for?
-summary(train_heart)
-hist_oldpeak <- hist(train_heart$Oldpeak)
 
 When comparing the coefficients for the observations of patients with a heart disease (*H_D.Prob*), in order from strongest to weakest association, there is a significant strong positive relationship between oldpeak, which means that the higher the value of *O_P*, the more often a heart problem occurs. Relationship between *MaxHR* and heart disease is moderately negative, which suggests that the higher the maximum heart rate achieved the less heart problems are observed. Both *Oldpeak* and *MaxHR* have a moderate strength of a relationship between each other and with *Age*. In turn, *Age* has a moderate positive relationship with heart problems, meaning that the older the patients observed, the more often they have a heart disease detected. Association between resting blood pressure (*R_BP*) is weak and positive. The relationships have a reverse direction when comparing the values for a normal heart (*H_D.Norm*). 
-From continuous predictor variables the values of cholesterol (*Chol*) have insignificant negligible association with both the heart disease and other numeric predictors. 
 
 ## Categorical predictors
 The *Cramer's V* is used for categorical variables. 
@@ -321,8 +315,9 @@ train_heart %>%
 
 The observations of angina induced by exercise (*E_A*) correlate strongly with the heart disease. Gender (*Sex*) seems to have a moderately strong relationship with the heart disease observations. Fasting blood sugar (*F_BS*) has a weak relationship with the outcome variable. 
 
+To find the importance of a categorical variable, instead of correlation, we can be looking at how often a heart disease is detected per category. The bar plots depict the proportion of normal or problematic heart performance per class within a group. The cross-tabulation gives the proportion of cases per class per total number of observations of given heart performance. 
 ### Sex
-To find the importance of a categorical variable, instead of correlation, we can be looking at how often a heart disease is detected per category. 
+ 
 ```{r}
 tsex <- table(train_heart$HeartDisease, train_heart$Sex)
 tsexp <- scale(tsex, FALSE, colSums(tsex)) * 100
@@ -331,6 +326,7 @@ bp_sex <- barplot(tsexp, beside = TRUE, col = c("green","red"), ylab="Frequency 
 legend("topright", c("Normal","Problem"), fill = c("green","red"))
 text(bp_sex, 0, round(tsexp, 0), cex = 1, pos = 3)
 ```
+
 In this data set men have heart problems more often than women (63% versus 27%). 
 
 ```{r}
@@ -971,44 +967,347 @@ A good model has a high accuracy and low error rate.
 ## ROC Curve
 
 # Visualization of the model 
-The first set of graphs is for the additive *fit3* model.
-```{r}
-fit3train <- glm(HeartDisease ~ ExerciseAngina
-                           + MaxHR 
-                           + ST_Slope
-                           + Oldpeak, 
-              data = train_heart, 
-              family = "binomial")
 
-summary(fit3train)
+To visualise the probability of heart disease the regression coefficients in terms of *log odds*, will be exponentiated to *odds ratios* and then transformed into *probabilities*. The code for the plots is derived from R Club (2016). 
+
+These are the regression estimates which came out of the **fit10** expressed in *log odds*. 
+```{r}
+fit10$coefficients
 ```
 
-Not working: https://www.rdocumentation.org/packages/ggiraphExtra/versions/0.3.0/topics/ggPredict 
+Saving the *log odds* coefficients for the equations.
 ```{r}
-ggPredict(fit3train, se = TRUE, interactive = TRUE, digits = 3)
-```
-Trying this out: https://blogs.uoregon.edu/rclub/2016/04/05/plotting-your-logistic-regression-models/
-```{r}
-fit3$coefficients
-```
-Save the coefficients for the equations.
-```{r}
-b0 <- fit3$coefficients[1]
-EA <- fit3$coefficients[2]
-MH <- fit3$coefficients[3]
-STf <- fit3$coefficients[4]
-STd <- fit3$coefficients[5]
-OP <- fit3$coefficients[6]
+b0 <- fit10$coefficients[1]
+EAy <- fit10$coefficients[2]
+MH <- fit10$coefficients[3]
+STd <- fit10$coefficients[4]
+STf <- fit10$coefficients[5]
+OP <- fit10$coefficients[6]
+STd.OP <- fit10$coefficients[7]
+STf.OP <- fit10$coefficients[8]
 ```
 
-## Augment the data with fitted values from *fit3*
-```{r}
-tmp <- predict(fit3train, type = "link", se = TRUE)
-train_heart$eta <- tmp$fit
-train_heart$se <- tmp$se.fit
-train_heart$pi <- plogis(tmp$fit)
+There are two continuous predictor variables against which the probability of the outcome can be plotted against. The first one is *MaxHR* and the other one is *Oldpeak*. 
 
-train_heart %<>%
+## MaxHR as x and Oldpeak as mean
+
+Entering the range of the predictor on the x-axis, in this case *MaxHR*. 
+```{r}
+MH_range <- seq(from=min(dummy_heart$MaxHR), to=max(dummy_heart$MaxHR), by=.01)
+```
+
+By plugging in the mean as value of *Oldpeak*, the plots will be generated to show the relationship between *MaxHR* and the outcome for a patient with an average oldpeak. 
+```{r}
+OP_val <- mean(dummy_heart$Oldpeak)
+```
+
+Computing the regression equations for each class of *ST_Slope* in logit terms.
+```{r}
+#The reference group - ST_Slope_Up
+up_logits <- b0 +
+  MH*MH_range +
+  OP*OP_val +
+  EAy*0 +
+  STd*0 +
+  STf*0 +
+  STd.OP*MH_range*0 +
+  STf.OP*MH_range*0 +
+  STd.OP*OP_val*0 +
+  STf.OP*OP_val*0
+
+#The focal groups
+down_logits <- b0 +
+  MH*MH_range +
+  OP*OP_val +
+  EAy*0 +
+  STd*1 +
+  STf*0 +
+  STd.OP*MH_range*1 +
+  STf.OP*MH_range*0 +
+  STd.OP*OP_val*1 +
+  STf.OP*OP_val*0
+
+flat_logits <- b0 +
+  MH*MH_range +
+  OP*OP_val +
+  EAy*0 +
+  STd*0 +
+  STf*1 +
+  STd.OP*MH_range*0 +
+  STf.OP*MH_range*1 +
+  STd.OP*OP_val*0 +
+  STf.OP*OP_val*1
+```
+
+Computing the probabilities which are going to be plotted.
+```{r}
+up_probs <- exp(up_logits)/(1 + exp(up_logits))
+down_probs <- exp(down_logits)/(1 + exp(down_logits))
+flat_probs <- exp(flat_logits)/(1 + exp(flat_logits))
+```
+
+Making the graph of probabilities of heart disease against *MaxHR* and an average value of *Oldpeak* for *ST_Slope* groups.
+```{r}
+#Plot for the reference group
+plot(MH_range, up_probs,
+     ylim=c(0,1),
+     type="l",
+     lwd=3,
+     lty=2,
+     col="gold",
+     xlab="MaxHR", ylab="Probability of Heart Disease")
+
+#Add the line for down slope
+lines(MH_range, down_probs,
+      type="l",
+      lwd=3,
+      lty=2,
+      col="darkgreen")
+
+#Add the line for flat slope
+lines(MH_range, flat_probs,
+      type="l",
+      lwd=3,
+      lty=4,
+      col="red")
+
+#Add a horizontal line at p=0.5
+abline(h=0.5, lty=2)
+
+legend(160, 1, 
+       c("Up", "Down", "Flat"),
+       lty=c(1,1,1),
+       lwd=c(2,2,2), col=c("gold", "darkgreen", "red")
+       )
+```
+
+Computing the regression equations for each class of *ExerciseAngina* in logit terms.
+```{r}
+#The reference group - ExerciseAngina_N
+no_logits <- b0 +
+  MH*MH_range +
+  OP*OP_val +
+  EAy*0 +
+  STd*0 +
+  STf*0 +
+  STd.OP*MH_range*0 +
+  STf.OP*MH_range*0 +
+  STd.OP*OP_val*0 +
+  STf.OP*OP_val*0
+
+#The focal group - ExerciseAngina_Y
+yes_logits <- b0 +
+  MH*MH_range +
+  OP*OP_val +
+  EAy*1 +
+  STd*0 +
+  STf*0 +
+  STd.OP*MH_range*0 +
+  STf.OP*MH_range*0 +
+  STd.OP*OP_val*0 +
+  STf.OP*OP_val*0
+```
+
+Computing the probabilities which are going to be plotted.
+```{r}
+no_probs <- exp(no_logits)/(1 + exp(no_logits))
+yes_probs <- exp(yes_logits)/(1 + exp(yes_logits))
+```
+
+Making the graph of probabilities of heart disease against *MaxHR* and an average value of *Oldpeak* for *ExerciseAngina* groups.
+```{r}
+#Plot for the reference group
+plot(MH_range, no_probs,
+     ylim=c(0,1),
+     type="l",
+     lwd=3,
+     lty=2,
+     col="blue",
+     xlab="MaxHR", ylab="Probability of Heart Disease")
+
+#Add the line for exercise angina yes-values
+lines(MH_range, yes_probs,
+      type="l",
+      lwd=3,
+      lty=3,
+      col="lightblue")
+
+#Add a horizontal line at p=0.5
+abline(h=0.5, lty=2)
+
+legend(160, 1, 
+       c("No", "Yes"),
+       lty=c(1,1),
+       lwd=c(3,3), col=c("blue", "lightblue")
+       )
+```
+
+## Oldpeak as x and MaxHR as mean
+
+Entering the range of the second predictor on the x-axis, in this case *Oldpeak*. 
+```{r}
+OP_range <- seq(from=min(dummy_heart$Oldpeak), to=max(dummy_heart$Oldpeak), by=.01)
+```
+
+By plugging in the mean as value of *MaxHR*, the plots will be generated to show the relationship between *Oldpeak* and the outcome for a patient with an average detected maximum heart rate. 
+```{r}
+MH_val <- mean(dummy_heart$MaxHR)
+```
+
+Computing the regression equations for each class of *ST_Slope* in logit terms.
+```{r}
+#The reference group - ST_Slope_Up
+up_logits <- b0 +
+  OP*OP_range +
+  MH*MH_val +
+  EAy*0 +
+  STd*0 +
+  STf*0 +
+  STd.OP*OP_range*0 +
+  STf.OP*OP_range*0 +
+  STd.OP*MH_val*0 +
+  STf.OP*MH_val*0
+
+#The focal groups
+down_logits <- b0 +
+  OP*OP_range +
+  MH*MH_val +
+  EAy*0 +
+  STd*1 +
+  STf*0 +
+  STd.OP*OP_range*1 +
+  STf.OP*OP_range*0 +
+  STd.OP*MH_val*1 +
+  STf.OP*MH_val*0
+
+flat_logits <- b0 +
+  OP*OP_range +
+  MH*MH_val +
+  EAy*0 +
+  STd*0 +
+  STf*1 +
+  STd.OP*OP_range*0 +
+  STf.OP*OP_range*1 +
+  STd.OP*MH_val*0 +
+  STf.OP*MH_val*1
+```
+
+Computing the probabilities which are going to be plotted.
+```{r}
+up_probs <- exp(up_logits)/(1 + exp(up_logits))
+down_probs <- exp(down_logits)/(1 + exp(down_logits))
+flat_probs <- exp(flat_logits)/(1 + exp(flat_logits))
+```
+
+Making the graph of probabilities of heart disease against *Oldpeak* and an average value of *MaxHR* for *ST_Slope* groups.
+```{r}
+#Plot for the reference group
+plot(OP_range, up_probs,
+     ylim=c(0,1),
+     type="l",
+     lwd=3,
+     lty=2,
+     col="gold",
+     xlab="Oldpeak", ylab="Probability of Heart Disease")
+
+#Add the line for down slope
+lines(OP_range, down_probs,
+      type="l",
+      lwd=3,
+      lty=2,
+      col="darkgreen")
+
+#Add the line for flat slope
+lines(OP_range, flat_probs,
+      type="l",
+      lwd=3,
+      lty=4,
+      col="red")
+
+#Add a horizontal line at p=0.5
+abline(h=0.5, lty=2)
+
+legend(3.5, 0.6, 
+       c("Up", "Down", "Flat"),
+       lty=c(1,1,1),
+       lwd=c(2,2,2), col=c("gold", "darkgreen", "red")
+       )
+```
+
+
+Computing the regression equations for each class of *ExerciseAngina* in logit terms.
+```{r}
+#The reference group - ExerciseAngina_N
+no_logits <- b0 +
+  OP*OP_range +
+  MH*MH_val +
+  EAy*0 +
+  STd*0 +
+  STf*0 +
+  STd.OP*OP_range*0 +
+  STf.OP*OP_range*0 +
+  STd.OP*MH_val*0 +
+  STf.OP*MH_val*0
+
+#The focal group - ExerciseAngina_Y
+yes_logits <- b0 +
+  OP*OP_range +
+  MH*MH_val +
+  EAy*1 +
+  STd*0 +
+  STf*0 +
+  STd.OP*OP_range*0 +
+  STf.OP*OP_range*0 +
+  STd.OP*MH_val*0 +
+  STf.OP*MH_val*0
+```
+
+Computing the probabilities which are going to be plotted.
+```{r}
+no_probs <- exp(no_logits)/(1 + exp(no_logits))
+yes_probs <- exp(yes_logits)/(1 + exp(yes_logits))
+```
+
+Making the graph of probabilities of heart disease against *Oldpeak* and an average value of *MaxHR* for *ExerciseAngina* groups.
+```{r}
+#Plot for the reference group
+plot(OP_range, no_probs,
+     ylim=c(0,1),
+     type="l",
+     lwd=3,
+     lty=2,
+     col="blue",
+     xlab="Oldpeak", ylab="Probability of Heart Disease")
+
+#Add the line for exercise angina yes-values
+lines(OP_range, yes_probs,
+      type="l",
+      lwd=3,
+      lty=3,
+      col="lightblue")
+
+#Add a horizontal line at p=0.5
+abline(h=0.5, lty=2)
+
+legend(3.5, 0.75, 
+       c("No", "Yes"),
+       lty=c(1,1),
+       lwd=c(3,3), col=c("blue", "lightblue")
+       )
+```
+
+
+## Alternative visualisation
+
+This visualisation which Kyle used is not giving flat lines for our regression. 
+### Augment the data with fitted values from *fit10*
+```{r}
+tmp <- predict(fit10, type = "link", se.fit = TRUE)
+dummy_heart$eta <- tmp$fit
+dummy_heart$se <- tmp$se.fit
+dummy_heart$pi <- plogis(tmp$fit)
+
+dummy_heart %<>%
   mutate(etaLower = eta - 1.96 * se,
          etaUpper = eta + 1.96 * se,
          piLower = plogis(etaLower),
@@ -1016,9 +1315,9 @@ train_heart %<>%
          )
 ```
 
-## Logit of the *fit3*
+### Logit of the *fit10*
 ```{r}
-ggplot(train_heart, aes(x = MaxHR, y = eta)) +
+ggplot(dummy_heart, aes(x = MaxHR, y = eta)) +
   geom_line(aes(color = ST_Slope), lwd = 1) +
   geom_ribbon(aes(ymin = etaLower, ymax = etaUpper, fill = ST_Slope), alpha = 0.2) +
   ylab("Logit of Heart Disease") +
@@ -1026,38 +1325,9 @@ ggplot(train_heart, aes(x = MaxHR, y = eta)) +
 ```
 
 
+### Probability of *fit10*
 ```{r}
-ggplot(train_heart, aes(x = Oldpeak, y = eta)) +
-  geom_line(aes(color = ST_Slope), lwd = 1) +
-  geom_ribbon(aes(ymin = etaLower, ymax = etaUpper, fill = ST_Slope), alpha = 0.2) +
-  ylab("Logit of Heart Disease") +
-  facet_wrap(vars(ExerciseAngina))
-```
-
-
-
-```{r}
-ggplot(train_heart, aes(x = MaxHR, y = eta)) +
-  geom_line(aes(color = ExerciseAngina), lwd = 1) +
-  geom_ribbon(aes(ymin = etaLower, ymax = etaUpper, fill = ExerciseAngina), alpha = 0.2) +
-  ylab("Logit of Heart Disease") +
-  facet_wrap(vars(ST_Slope))
-```
-
-
-
-```{r}
-ggplot(train_heart, aes(x = Oldpeak, y = eta)) +
-  geom_line(aes(color = ExerciseAngina), lwd = 1) +
-  geom_ribbon(aes(ymin = etaLower, ymax = etaUpper, fill = ExerciseAngina), alpha = 0.2) +
-  ylab("Logit of Heart Disease") +
-  facet_wrap(vars(ST_Slope))
-```
-
-
-## Probability of *fit3*
-```{r}
-ggplot(train_heart, aes(x = Oldpeak, y = pi)) + 
+ggplot(dummy_heart, aes(x = Oldpeak, y = pi)) + 
   geom_ribbon(aes(ymin = piLower, ymax = piUpper, fill = ExerciseAngina), alpha = 0.2) +
   geom_line(aes(color = ExerciseAngina), lwd = 1) + 
   ylab("Probability of Survival") +
@@ -1066,11 +1336,41 @@ ggplot(train_heart, aes(x = Oldpeak, y = pi)) +
 
 
 # Interpreting the final model
+```{r}
+fit10 <- glm(HeartDisease ~ ExerciseAngina_Y
+                           + MaxHR 
+                           + ST_Slope_Down
+                           + ST_Slope_Flat
+                           + Oldpeak
+                           + ST_Slope_Down * Oldpeak
+                           + ST_Slope_Flat * Oldpeak,
+              data = dummy_heart, 
+              family = "binomial")
+
+summary(fit10)
+```
+[Interpretation coefficients in log odds]
+
+The coefficients expressed in odds ratio and given confidence interval of 95%.
+```{r, message=FALSE}
+exp(cbind(OddsRatio = coef(fit10), confint(fit10)))
+```
+
+[Interpretation odds ratio]
+
+Predicted probability of heart disease at each value of *ExerciseAngina* and *ST_Slope* holding *MaxHR* and *Oldpeak* at their means. -> Can't figure out the code for this one: https://stats.oarc.ucla.edu/r/dae/logit-regression/
+```{r}
+#heartp <- with(dummy_heart, data_frame(MH = mean(MaxHR), OP = mean(Oldpeak), EAy = factor(ExerciseAngina_Y), STd = factor(ST_Slope_Down), STf = factor(ST_Slope_Flat)))
+
+#heartp$Probability <- predict(fit10, newdata = heartp, type = "response")
+
+#heartp
+```
 
 # Answering the research question 
 
 # Discussion & Limitations
-
+The distribution of observations per class in categorical variables was not equal for some predictors. However, that might correspond with the rareness of types occurring in real life medical cases. 
 
 # Sources
 fedesoriano. (2021, September). *Heart Failure Prediction Dataset.* [Data set] Retrieved from https://www.kaggle.com/fedesoriano/heart-failure-prediction.
@@ -1084,6 +1384,8 @@ Kassambara, A. (2018). Linear Regression Assumptions and Diagnostics in R: Essen
 Klein, A. G., Gerhard, C., Büchner, R. D., Diestel, S. & Schermelleh-Engel, K. (2016). The detection of heteroscedasticity in regression models for psychological data. *Psychological Test and Assessment Modeling, 58*(4), 542-568.
 
 Makowski, D., Ben-Shachar, M. S., Patil, I., & Lüdecke, D. (2019). Methods and Algorithms for Correlation Analysis in R. *Journal of Open Source Software, 5*(51), 2306. https://doi.org/10.21105/joss.02306
+
+R Club (2016, April 5). *Plotting your logistic regression models.* [Blog] Retrieved from https://blogs.uoregon.edu/rclub/2016/04/05/plotting-your-logistic-regression-models/. 
 
 Rousselet, G. A., & Wilcox, R. R. (2020). Reaction times and other skewed distributions: problems with the mean and the median. *Meta-Psychology, 4*. 
 https://doi.org/10.15626/MP.2019.1630
