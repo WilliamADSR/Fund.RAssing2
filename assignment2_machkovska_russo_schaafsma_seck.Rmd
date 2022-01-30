@@ -915,8 +915,11 @@ c(fit3 = cross3$acc.cv, fit5 = cross5$acc.cv, fit6 = cross6$acc.cv,
 # Predictions 
 
 Now we will start working with the test set. We will make predictions in the probability scale plugging in our best model *fit10* to the test set.  
+
 After getting the probabilities prediction, we need to set a threshold in order to classify the outcomes in the two groups of heart disease: the normal group (the ones with healthy heart) and the problematic group (the ones with heart disease).  
+
 We will use the 50% probability as the cut off. As we are trying to predict heart disease, we will consider the success group as the problematic one ("Prob").  
+
 If the (predicted) probability is higher than 50%, the person will be classified as having heart disease; if the (predicted) probability is lower or equal to 50%, the person is classified in the group of normal hearts. 
 ```{r}
 # Creating the dummy codes in the test set
@@ -932,7 +935,9 @@ class <- ifelse(probab > 0.5, "Prob", "Norm") %>% factor()
 
 # Confusion Matrix
 
-We will check the performance of our model with a confusion matrix. The test set has 183 observations, of which 66 are true negatives; 91 are true positives; 10 are false negatives; and 16 are false positives.  
+We will check the out of sample performance of our model with a confusion matrix. The dataset was split in test and train sets in the beginning of the assignment. No we work with the test set to see what is the accuracy of *fit10* in a different sample than the one in which we trained the model.  
+
+The test set has 183 observations, of which 66 are true negatives; 91 are true positives; 10 are false negatives; and 16 are false positives.  
 
 With this result, we can interpret the *sensitivity*, *specificity* and *accuracy*. Before doing so, it is important to pay attention to the last line of the output.   
 
