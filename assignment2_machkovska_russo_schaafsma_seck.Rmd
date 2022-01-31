@@ -1313,6 +1313,15 @@ legend(3.5, 0.75,
 
 
 # Answering the research question 
+The research question that we tried to answer in this assignment, stated: *“When using exploratory data analysis, what variables seem to be influential predicting heart disease?”*
+
+Since the data set we used contained 11 variables influencing heart disease, we started by exploring correlations between the variables and heart disease. Considering the results from the correlation analysis we decided to try and build a best model with the following 5 variables: *ExcerciseAngina*, *ST_Slope*, *MaxHR*, *Oldpeak*, and *Age*.
+
+After a series of building the model, from simple additive logistic regression modelling to moderated multiple logistic regression modelling, we ended up with our best model  Model 10. When executing the model comparisons this model came out best with regard to ANOVA, AIC and BIC. The results of our best model suggest that people that experience angina after exercise (ExerciseAngina_Y), have a ST slope that is downwards or flat (ST_Slope_Flat & ST_Slope_Flat) and have greater depression in the ST segment (Oldpeak), have an increased log odds of heart disease. Furthermore, people that have a higher maximum heart rate (MaxHR) and an interaction term for either a downwards or flat ST slope (ST_Slope_Flat & ST_Slope_Flat) and a depression in the ST segment (Oldpeak), have a decreased log odds of heart disease. Thus, the variables **ExcerciseAngina_Y**, **MaxHR**, **ST_Slope_Down**, **ST_Slope_Flat**, **Oldpeak**, **ST_Slope_Down x Oldpeak** and **ST_Slope_Flat x Oldpeak**, seem to be the main factors to predict whether someone has heart failure or not. 
+
+Our goal when building this model was also to build a model that is accurate and shows low errors when predicting cases with new data. Our model has an accuracy of 85,79% and an AUC of 0,913. With regard to our outcome variable , *HeartDisease*, we are content with the way our model is able to do classifications. Since heart disease is a serious topic we would ultimately want a higher accuracy, yet the AUC is considered outstanding. 
+
+Surprisingly, even though we did not include hypothesis in our study (as a result of exploratory analysis), *Age* was not a significant predictor of heart failure. One could also argue that *RestingBP* was unexpectedly not even moderately related to heart failure when doing the correlation analysis. Maybe another research is needed to investigate these relationships.
 
 # Limitations
 
