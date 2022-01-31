@@ -883,7 +883,15 @@ A good model has a high accuracy and low error rate.
 
 ```{r}
 
+# Duplicate HeartDisease column
+test_heart_pred$prob_heart <- test_heart_pred$HeartDisease    
 
+#levels(test_heart_pred$HeartDisease) <- c(1,0)
+#names(test_heart_pred)[10] <- "prob_heart"
+
+
+#test_heart_pred$HeartDisease <- as.factor(test_heart_pred$HeartDisease) 
+#test_heart_pred$prob_heart <- as.numeric(test_heart_pred$HeartDisease)
 
 
 
