@@ -34,6 +34,7 @@ library(summarytools)
 library(DAAG)
 library(fastDummies)
 library(pROC)
+library(ROCR)
 ```
 
 # Research question and relevance 
@@ -495,7 +496,7 @@ Now we will clean up the dataset and see how it look like.
 dummy_heart <- dummy_heart %>% 
                select(Age, MaxHR, Oldpeak,
                       ExerciseAngina, ExerciseAngina_N, ExerciseAngina_Y,
-                      ST_Slope, ST_Slope_Up, ST_Slope_Down, ST_Slope_Up, ST_Slope_Flat,
+                      ST_Slope, ST_Slope_Up, ST_Slope_Down, ST_Slope_Flat,
                       HeartDisease)
 
 # Visualizing dataset
@@ -650,40 +651,6 @@ BIC follows the same narrative as AIC and, therefore, *fit3* is the best model.
 BIC(fit1, fit2, fit3, fit4)
 ```
 
-## Cross-validation
-
-Result model 1 here
-
-```{r}
-set.seed(42)
-cross1 <- CVbinary(fit1, nfolds = 10)
-```
-
-Result model 2 here 
-
-```{r}
-set.seed(42)
-cross2 <- CVbinary(fit2, nfolds = 10)
-```
-Result model 3 here
-
-```{r}
-set.seed(42)
-cross3 <- CVbinary(fit3, nfolds = 10)
-```
-Result model 4 here
-
-```{r}
-set.seed(42)
-cross4 <- CVbinary(fit4, nfolds = 10)
-```
-
-Comparison all results here
-
-```{r}
-c(fit1 = cross1$acc.cv, fit2 = cross2$acc.cv, fit3 = cross3$acc.cv, fit4 = cross4$acc.cv)
-```
-
 # Model building - interaction
 
 After choosing **fit3** as the best additive model, we will add interactions to try to improve it. As it was done before, we will train all the models before, analyse the p-values and, later on, make the model comparison.  
@@ -825,72 +792,6 @@ It is interesting to notice that BIC is more conservative than AIC. *Fit11*, tha
 ```{r}
 BIC(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11)
 ```
-## Cross Validation
-
-Result model 3 here
-
-```{r}
-set.seed(42)
-cross3 <- CVbinary(fit3, nfolds = 10)
-```
-
-Result model 5 here.
-
-```{r}
-set.seed(42)
-cross5 <- CVbinary(fit5, nfolds = 10)
-```
-
-Result model 6 here
-
-```{r}
-set.seed(42)
-cross6 <- CVbinary(fit6, nfolds = 10)
-```
-
-Result model 7 here
-
-```{r}
-set.seed(42)
-cross7 <- CVbinary(fit7, nfolds = 10)
-```
-
-Result model 8 here
-
-```{r}
-set.seed(42)
-cross8 <- CVbinary(fit8, nfolds = 10)
-```
-
-Result model 9 here
-
-```{r}
-set.seed(42)
-cross9 <- CVbinary(fit9, nfolds = 10)
-```
-
-Result model 10 here
-
-```{r}
-set.seed(42)
-cross10 <- CVbinary(fit10, nfolds = 10)
-```
-
-Result  model 11 here
-
-```{r}
-set.seed(42)
-cross11 <- CVbinary(fit11, nfolds = 10)
-```
-
-Comparing all the results here
-
-```{r}
-c(fit3 = cross3$acc.cv, fit5 = cross5$acc.cv, fit6 = cross6$acc.cv, 
-                        fit7 = cross7$acc.cv, fit8 = cross8$acc.cv, 
-                        fit9 = cross9$acc.cv, fit10 = cross10$acc.cv, 
-                        fit11 = cross11$acc.cv)
-```
 
 # Checking assumptions 
 
@@ -905,8 +806,6 @@ c(fit3 = cross3$acc.cv, fit5 = cross5$acc.cv, fit6 = cross6$acc.cv,
 ## Residuals vs Leverage
 
 ## Influential cases
-
-# Cross Validation
 
 # Predictions 
 
@@ -925,8 +824,24 @@ test_heart_dummy <- dummy_cols(test_heart,
 # Predictions in the probability scale
 probab <- predict(fit10, newdata = test_heart_dummy, type = "response")
 
+# Add column of predictions to the test set
+test_heart_dummy$prediction <- probab
+
 # Setting a cut off at 50%
 class <- ifelse(probab > 0.5, "Prob", "Norm") %>% factor()
+
+# Add column of predicted classification to the test set
+test_heart_dummy$classification <- class
+
+# Selecting variables to visualize 
+test_heart_pred <- test_heart_dummy %>% 
+                   select(MaxHR, Oldpeak, ExerciseAngina_Y, ST_Slope_Down, 
+                          ST_Slope_Flat, HeartDisease, prediction, classification)
+
+# Visualizing dataset
+head(test_heart_pred) %>% 
+  knitr::kable(format = "markdown", digits= 1, padding = 30, align = 'c')
+
 ```
 
 # Confusion Matrix
@@ -965,6 +880,21 @@ The error rate speaks for itself and it is the proportion of cases that the mode
 A good model has a high accuracy and low error rate. 
 
 ## ROC Curve
+
+```{r}
+
+#pred <- prediction(test_heart_dummy$predictions, test_heart_dummy$labels)
+#perf <- performance(pred,"tpr","fpr")
+#plot(perf,colorize=TRUE)
+
+
+
+#roc_curve <- performance(pred, measure = "tpr", x.measure = "fpr")
+
+#plot(roc_curve, colorize = T, lwd = 2)
+
+#abline(a = 0, b = 1) 
+```
 
 # Visualization of the model 
 
