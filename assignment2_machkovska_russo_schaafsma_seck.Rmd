@@ -820,7 +820,15 @@ BIC(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11)
 ```
 
 # Checking assumptions 
-In order to assess whether this model provides a good fit to the data, we must check the residual plots. The coefficient estimated can turn out biased despite the relatively high Multiple
+In order to assess whether this model provides a good fit to the data, we must check the residual plots. Furthermore the model must complete the assumptions for logistic regression namely; the outcome follows a binomial distribution, the predictor matrix is full-rank, the predictors are linearly related to *logit* and the observations are independent after accounting for the predictors.
+
+
+The dataset has a binary outcome, which means that it will have a binomial distribution. This fulfills the first assumption.
+
+```{r}
+dim(dummy_heart)
+```
+The dimensions of the dataset are 735 rows by 18 columns, so the dataset also easily fulfills the second assumption of being full-rank.
 
 ## Residuals vs Fitted model
 ```{r}
@@ -841,9 +849,7 @@ According to the Cook's distance plot there are three cases which are potential 
 ```{r}
 plot(fit10,5)
 ```
-There are some cases which have high leverage such as 270 or 565 or have high residuals, but thankfully those cases don't have both. This means that there aren't any significant observations with both high residuals and leverage, so there are not highly influential cases. 
-
-## Influential cases
+There are some cases which have high leverage such as 270 or 565 or have high residuals, but thankfully those cases don't have both. This means that there aren't any significant observations with both high residuals and leverage, so there are not highly influential cases and the observations are independent. 
 
 # Predictions 
 
@@ -976,7 +982,7 @@ Having an excersise induced angina (*ExerciseAngina_Y*) versus none (*ExerciseAn
 
 For the groups within the predictor *ST_Slope*, patients with down slopes versus up slopes have an increase in log odds of probability of heart disease with **1.51**. For patients with flat slopes instead of up, the log odds of heart disease increase by **2.80**. 
 
-In the presence of moderation of *ST_Slope* by *Oldpeak*, there is a different effect of oldpeak on heart disease probability for down and flat slope versus up slopes. 
+In the presence of moderation of *ST_Slope* by *Oldpeak*, there is a different effect of oldpeak on heart disease probability for down and flat slope versus up slopes. This moderation works both ways. 
 The coefficient for oldpeak is the effect of oldpeak when *ST_Slope_Down* = 0 and *ST_Slope_Flat* = 0. For *ST_Slope_Up*, a one unit increase in oldpeak has a change in log odds of **1.08**. On the other hand, for down slopes, a one unit increase in oldpeak changes the log odds with (1.077656 - 0.790886) = **0.29**. and for flat slopes log odds change with (1.077656 - 1.037129) = **0.04**, so the effect of oldpeak in having a heart disease is weaker for focal groups. 
 
 Below are the coefficients expressed in odds ratio and given confidence interval of 95%.None of the confidence intervals have an odds of 1 in their range, so the results can be considered statistically significant. 
