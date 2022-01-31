@@ -327,7 +327,7 @@ heart$HeartDisease &lt;- factor(heart$HeartDisease,
 </div>
 <div id="inspecting-and-cleaning-up" class="section level1" number="6">
 <h1><span class="header-section-number">6</span> Inspecting and cleaning up</h1>
-<p>add information like: * number of observations</p>
+<p>We will work with a dataset that has 918 observations and 12 variables. We will inspect it, look for any anomaly and fix it in case we find it. After that, we will split the data in train and test sets.</p>
 <pre class="r"><code>head(heart) %&gt;% 
   knitr::kable(format = &quot;markdown&quot;, digits= 1, padding = 30, align = &#39;c&#39;)</code></pre>
 <table>
@@ -580,7 +580,9 @@ heart_cholesterol %&gt;%
 </div>
 <div id="split-the-data-train-and-test" class="section level1" number="8">
 <h1><span class="header-section-number">8</span> Split the data: train and test</h1>
-<p>In the training data set 80% (p=0.8) of the rows were generated as a new sample. Out of 735 observations 45% has normal heart performance (328 rows) and 55% has heart problems (407 rows). Therefore, the training data has approximately equal distribution of classes within response variable.</p>
+<p>We will now split the data in two subsets, in order to train our model in the first set and check its performance in the second one.</p>
+<p>The train set will have 80% of the observations (735), and the test will be left with the other 20% (183 observations).</p>
+<p>Out of the 735 observations from the training set, 45% has normal heart performance (328 rows) and 55% has heart problems (407 rows). Therefore, the training data has approximately equal distribution of classes within response variable.</p>
 <pre class="r"><code>set.seed(42)
 
 # Split data randomly
@@ -1316,7 +1318,7 @@ text(bp_ST, 0, round(tSTp, 0), cex = 1, pos = 3)</code></pre>
 </div>
 <div id="summing-up-correlation-results" class="section level2" number="9.3">
 <h2><span class="header-section-number">9.3</span> Summing up correlation results</h2>
-<p>After the exploration made above, we concluded that <em>ExerciseAngina</em>, <em>ST_Slope</em>, <em>MaxHR</em>, <em>Oldpeak</em>, <em>Age</em> and <em>MaxHR</em> are the variables that show strongest correlation with our outcome variable, <em>HeartDisease</em>. Therefore, we are going to look for the best model from these variables.</p>
+<p>After the exploration made above, we concluded that <em>ExerciseAngina</em>, <em>ST_Slope</em>, <em>MaxHR</em>, <em>Oldpeak</em> and <em>Age</em> are the variables that show strongest correlation with our outcome variable, <em>HeartDisease</em>. Therefore, we are going to look for the best model from these variables.</p>
 </div>
 </div>
 <div id="dummy-codes" class="section level1" number="10">
@@ -1444,8 +1446,8 @@ head(dummy_heart) %&gt;%
 </tr>
 </tbody>
 </table>
-<p>We will treat <em>ExerciseAgina_N</em> (no for exercise angina) as the reference group and, therefore, only the variable <em>ExerciseAngina_Y</em> (yes for exercise angina) will be included in the model, as the focal group.<br />
-In the case of <em>ST_Slope</em>, <em>ST_Slope_Up</em> will be the reference group and, consequently, only <em>ST_Slope_Down</em> and <em>ST_Slope_Flat</em> will ne included in the model.</p>
+<p>We will treat <em>ExerciseAgina_N</em> (no for exercise angina) as the reference group and, therefore, only the variable <em>ExerciseAngina_Y</em> (yes for exercise angina) will be included in the model, as the focal group.</p>
+<p>In the case of <em>ST_Slope</em>, <em>ST_Slope_Up</em> will be the reference group and, consequently, only <em>ST_Slope_Down</em> and <em>ST_Slope_Flat</em> will ne included in the model.</p>
 </div>
 <div id="additive-models" class="section level1" number="11">
 <h1><span class="header-section-number">11</span> Additive models</h1>
@@ -2756,11 +2758,13 @@ legend(3.5, 0.75,
 </div>
 <div id="limitations" class="section level1" number="21">
 <h1><span class="header-section-number">21</span> Limitations</h1>
-<p>In our last topic, we will talk about the limitations faced during the development of this assignment. The first one to mention is our limitation to interpret the interaction added in our best model <em>fit10</em>. Interactions: we add randomly, so we cannot say which one is the moderator. It is not ethical to make hypothesis later on. This could be left for a next researcher, to try to understand the relationship between the two variables and which one could be the moderator</p>
-<p>Our goal was to train a model that could predict well and not find causal relationships/ the main variables that predict heart disease. Because of that, we may have left some important variable out of the model – as it could be with cholesterol- but, in our case, the column had a lot of missing values and weak correlation with the predictor.</p>
-<p>The distribution of observations per class in categorical variables was not equal for some predictors. However, that might correspond with the rareness of types occurring in real life medical cases.</p>
-<p>Problem with CVbinary</p>
-<p>We faced software issues</p>
+<p>In our last topic, we will talk about the limitations faced during the development of this assignment. The first one to mention is our limitation to interpret the interaction added in our best model <em>fit10</em>.</p>
+<p>The addition of the interactions between <em>ST_Slope_Down</em> and <em>Oldpeak</em>, and <em>ST_Slope_Flat</em> and <em>Oldpeak</em> was worth due to the improvement in the performance of the model, but it was random and not based on any hypothesis about a moderation. Because of that, we are not allowed to say which of the variables (<em>ST_slope</em> and <em>Oldpeak</em>) is the moderator and which is the focal predictor. It would not be ethical to look for a hypothesis after finding an improvement in the model, so we will leave it for other researchers to dedicate themselves to reflect on the moderation between the two predictors.</p>
+<p>The second barrier was about the main predictor. As mentioned before, our goal was to train a model that could predict well and not find causal relationships or the indispensable variables that predict heart disease. We also did not base our analysis in any hypothesis about the true causes of heart problems. Because of that, we may have left some important variable out of the model. This could be the case, for instance, of cholesterol. we left it out, because there were a lot of missing values and a weak correlation with the predictor.</p>
+<p>We also would like to mention the fact that the distribution of observations per class in categorical variables was not equal for some predictors. However, that might correspond with the rareness of types occurring in real life medical cases.</p>
+<p>The last limitation we faced was a technical issue. When making the model comparison, we would like to add an extra criterion, besides the BIC, AIC and change in the deviance. We planned on performing a cross-validation through CVbinary() in order to get an estimate of accuracy, but because of and unknown problem, we were only able to get a zero result, as follows:</p>
+<p>Fold: 1 5 9 10 4 2 8 7 3 6 Internal estimate of accuracy = 0 Cross-validation estimate of accuracy = 0</p>
+<p>But it is here registered our attempt and concern about including this criterion, in addition to the code we would use to obtain this result.</p>
 <pre class="r"><code># Comparing additive models
 
 # Result for fit1

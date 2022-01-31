@@ -126,8 +126,8 @@ This data set holds 12 variables of which **Heart disease** is our dichotomous o
 
 # Inspecting and cleaning up
 
-add information like:
-* number of observations
+We will work with a dataset that has 918 observations and 12 variables. We will inspect it, look for any anomaly and fix it in case we find it. After that, we will split the data in train and test sets. 
+
 
 ```{r} 
 head(heart) %>% 
@@ -258,7 +258,11 @@ median(heart$Oldpeak)
 Heartrate has a left-skewed distribution and a couple outliers on the higher side, but nothing that doesn't fit the variable. The median ST depression is  0.6 , the highest is 6.2 which is very high and caused by an outlier and the lowest is -2.6 which is quite low. The ST depression being to high or low can be indicators of anginaor other heart illnesses.
 
 # Split the data: train and test
-In the training data set 80% (p=0.8) of the rows were generated as a new sample. Out of 735 observations 45% has normal heart performance (328 rows) and 55% has heart problems (407 rows). Therefore, the training data has approximately equal distribution of classes within response variable. 
+We will now split the data in two subsets, in order to train our model in the first set and check its performance in the second one. 
+
+The train set will have 80% of the observations (735), and the test will be left with the other 20% (183 observations).  
+
+Out of the 735 observations from the training set,  45% has normal heart performance (328 rows) and 55% has heart problems (407 rows). Therefore, the training data has approximately equal distribution of classes within response variable. 
 ```{r}
 set.seed(42)
 
@@ -1314,9 +1318,20 @@ legend(3.5, 0.75,
 
 In our last topic, we will talk about the limitations faced during the development of this assignment. The first one to mention is our limitation to interpret the interaction added in our best model *fit10*. 
 
-The addition of the interactions between *ST_Slope_Down* and *Oldpeak*, and *ST_Slope_Flat* and *Oldpeak* was worth due to the improvement in the performance of the model, but it was random and not based on any hypothesis about a moderation. Because of that, we are not allowed to say which of the variables (*ST_slope* and *Oldpeak*) is the moderator and which is the focal predictor. It would not be ethical to look for a hypothesis after finding an improvement in the model, so we will leave it for other researchers to dedicate themselves to reflect on the moderation between the two predictors. 
-                           
+The addition of the interactions between *ST_Slope_Down* and *Oldpeak*, and *ST_Slope_Flat* and *Oldpeak* was worth due to the improvement in the performance of the model, but it was random and not based on any hypothesis about a moderation. Because of that, we are not allowed to say which of the variables (*ST_slope* and *Oldpeak*) is the moderator and which is the focal predictor. It would not be ethical to look for a hypothesis after finding an improvement in the model, so we will leave it for other researchers to dedicate themselves to reflect on the moderation between the two predictors.    
 
+The second barrier was about the main predictor. As mentioned before, our goal was to train a model that could predict well and not find causal relationships or the indispensable variables that predict heart disease. We also did not base our analysis in any hypothesis about the true causes of heart problems. Because of that, we may have left some important variable out of the model. This could be the case, for instance, of cholesterol. we left it out, because there were a lot of missing values and a weak correlation with the predictor.   
+  
+We also would like to mention the fact that the distribution of observations per class in categorical variables was not equal for some predictors. However, that might correspond with the rareness of types occurring in real life medical cases.  
+
+The last limitation we faced was a technical issue. When making the model comparison, we would like to add an extra criterion, besides the BIC, AIC and change in the deviance. We planned on performing a cross-validation through CVbinary() in order to get an estimate of accuracy, but because of and unknown problem, we were only able to get a zero result, as follows: 
+
+Fold:  1 5 9 10 4 2 8 7 3 6  
+Internal estimate of accuracy = 0  
+Cross-validation estimate of accuracy = 0  
+
+But it is here registered our attempt and concern about including this criterion, in addition to the code we would use to obtain this result.
+                           
 ```{r error = TRUE}
 
 # Comparing additive models
