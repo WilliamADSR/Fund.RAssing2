@@ -886,9 +886,10 @@ A good model has a high accuracy and low error rate.
 # Duplicate HeartDisease column
 test_heart_pred$prob_heart_obs <- test_heart_pred$HeartDisease    
 
-test_heart_pred$prob_heart_obs <-ifelse(test_heart_pred$prob_heart_obs == "Prob", 1, 0)
+# Transform the categorical column Pron and Norm in 0 and 1. Prob will be 1
+test_heart_pred$prob_heart_obs <- ifelse(test_heart_pred$prob_heart_obs == "Prob", 1, 0)
 
-
+# Use observed values against predicted values to make the roc curve
 pred <- prediction(test_heart_pred$prediction, test_heart_pred$prob_heart_obs)
 roc_curve <- performance(pred, measure = "tpr", x.measure = "fpr")
 plot(roc_curve, colorize = T, lwd = 2)
