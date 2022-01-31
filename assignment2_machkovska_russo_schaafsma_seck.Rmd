@@ -45,7 +45,7 @@ In this assignment we will do an exploratory analysis on the variables that coul
 
 Consequently, we will not work with hypothesis. Since we will try to build a model by exploratory means, our research question states:  
 
-When using exploratory data analysis, what variables seem to be influential predicting heart disease? 
+**When using exploratory data analysis, what variables seem to be influential predicting heart disease?**
 
 # Loading the dataset
 The data set is derived from Kaggle and is uploaded by fedesoriano (2021). With the following script a distinction is made between continuous (numeric) and categorical variables which are transformed to factor type data. 
@@ -1313,7 +1313,7 @@ legend(3.5, 0.75,
 
 
 # Answering the research question 
-The research question that we tried to answer in this assignment, stated: *“When using exploratory data analysis, what variables seem to be influential predicting heart disease?”*
+The research question that we tried to answer in this assignment, stated: **“When using exploratory data analysis, what variables seem to be influential predicting heart disease?”**
 
 Since the data set we used contained 11 variables influencing heart disease, we started by exploring correlations between the variables and heart disease. Considering the results from the correlation analysis we decided to try and build a best model with the following 5 variables: *ExcerciseAngina*, *ST_Slope*, *MaxHR*, *Oldpeak*, and *Age*.
 
