@@ -151,11 +151,8 @@ str(heart)
 Now that we know what the variables consist of and the meaning behind them we will be looking some analysis on the distribution of the observations for each variable. 
 
 ```{r}
-Hist_age <- hist(heart$Age)
-```
+Hist_age <- hist(heart$Age, main = "Distribution of age", ylab = "Age in years")
 
-
-```{r}
 Box_age <- boxplot(heart$Age, main = "Distribution of age", ylab = "Age in years")
 ```
 
@@ -167,7 +164,7 @@ Age is distributed normally. The youngest observations is 28 years old and the o
 
 
 ```{r}
-Hist_BPrest <- hist(heart$RestingBP)
+Hist_BPrest <- hist(heart$RestingBP, main = "Distribution of resting blood pressure levels", ylab = "Resting blood pressure levels (mmHg)")
 ```
 
 
@@ -186,7 +183,7 @@ max(heart$RestingBP)
 Most of the observations have a healthy resting blood pressure, which the median of 130 also represents. There are some outliers past the maximum of the boxplot, the highest observations has a resting blood pressure of 200 which is very dangerous.
 
 ```{r}
-Hist1_chol <- hist(heart$Cholesterol)
+Hist1_chol <- hist(heart$Cholesterol, main = "Distribution of cholesterol levels", ylab = "Cholesterol levels (mmHg)")
 ```
 
 ```{r}
@@ -233,7 +230,7 @@ Clean_Heart <- heart %>%
 ```
 
 ```{r}
-hist_MaxHR <- hist(heart$MaxHR)
+hist_MaxHR <- hist(heart$MaxHR, main = "Distribution of maximum heartrate", ylab = "Heartrate in bpm")
 
 Box_maxhr <- boxplot(heart$MaxHR, main = "Distribution of maximum heartrate", ylab = "Heartrate in bpm")
 
@@ -245,7 +242,7 @@ median(heart$MaxHR)
 Heartrate has a normal distribution and a couple outliers on the lower side, but nothing that doesn't fit the variable. The median maximum heart rate is 138 bpm which is average and within the norms for the median age of the observant. The highest is 202, which is definitely on the higher side and not healthy and the lowest is 60, which also isn't very healthy.
 
 ```{r}
-hist_oldPeak <- hist(heart$Oldpeak)
+hist_oldPeak <- hist(heart$Oldpeak, main = "Distribution of ST segment depression", ylab = "ST depression size")
 
 Box_oldPeak <- boxplot(heart$Oldpeak, main = "Distribution of ST segment depression", ylab = "ST depression size")
 
