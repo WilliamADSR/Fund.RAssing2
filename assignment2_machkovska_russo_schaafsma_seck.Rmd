@@ -358,6 +358,8 @@ train_heart %$%
     footnote = NA
   )
 ```
+
+
 ### Chest pain type
 
 ```{r}
@@ -962,23 +964,26 @@ fit10 <- glm(HeartDisease ~ ExerciseAngina_Y
 
 summary(fit10)
 ```
-[Interpretation coefficients in log odds]
+The reference groups are in this case *ExerciseAngina_N* and *ST_Slope_Up*. 
 
-The coefficients expressed in odds ratio and given confidence interval of 95%.
+For an additional unit of *MaxHR*, the log odds of having a heart disease versus a normal performance decreases by **0.02**, after controlling for presence of an excercise angina, types of slopes and values of oldpeak. The effect is significant. The higher the maximum heart rate detected, the less chance the patient has of heart disease diagnosis. 
+
+For an additional unit of *Oldpeak*, the the log odds of having a heart disease versus a normal performance significantly increases with **1.08**, after controlling for other predictors. The higher the values of oldpeak, the bigger chance there is for having a heart disease. 
+
+Having an excersise induced angina (*ExerciseAngina_Y*) versus none (*ExerciseAngina_N*), changes the log odds of diagnosed heart by **1.41**, when the other predictors are at fixed values. 
+
+For the groups within the predictor *ST_Slope*, patients with down slopes versus up slopes have an increase in log odds of probability of heart disease with **1.51**. For patients with flat slopes instead of up, the log odds of heart disease increase by **2.80**. 
+
+In the presence of moderation of *ST_Slope* by *Oldpeak*, there is a different effect of oldpeak on heart disease probability for down and flat slope versus up slopes. 
+The coefficient for oldpeak is the effect of oldpeak when *ST_Slope_Down* = 0 and *ST_Slope_Flat* = 0. For *ST_Slope_Up*, a one unit increase in oldpeak has a change in log odds of **1.08**. On the other hand, for down slopes, a one unit increase in oldpeak changes the log odds with (1.077656 - 0.790886) = **0.29**. and for flat slopes log odds change with (1.077656 - 1.037129) = **0.04**, so the effect of oldpeak in having a heart disease is weaker for focal groups. 
+
+Below are the coefficients expressed in odds ratio and given confidence interval of 95%.None of the confidence intervals have an odds of 1 in their range, so the results can be considered statistically significant. 
 ```{r, message=FALSE}
 exp(cbind(OddsRatio = coef(fit10), confint(fit10)))
 ```
 
-[Interpretation odds ratio]
-
-Predicted probability of heart disease at each value of *ExerciseAngina* and *ST_Slope* holding *MaxHR* and *Oldpeak* at their means. -> Can't figure out the code for this one: https://stats.oarc.ucla.edu/r/dae/logit-regression/
-```{r}
-#heartp <- with(dummy_heart, data_frame(MH = mean(MaxHR), OP = mean(Oldpeak), EAy = factor(ExerciseAngina_Y), STd = factor(ST_Slope_Down), STf = factor(ST_Slope_Flat)))
-
-#heartp$Probability <- predict(fit10, newdata = heartp, type = "response")
-
-#heartp
-```
+The odds for an extra unit of *MaxHR* are **0.98**, which is close to 1, so there is an almost negligible association between the maximum heart rate and the outcome. For an extra unit of *Oldpeak* the odds of success are **2.94**, so higher values of oldpeak are 3 times as likely to have a heart disease diagnosed. Holding MaxHR and Oldpeak at fixed values, the odds of having a heart disease for *ExerciseAngina_Y* over the odds of *EA_N* are 4.11, so *Y* group is 4 times more likely to have a heart disease diagnosed. 
+Patients with *ST_Slope_Down* 4 times as likely to have heart disease and patients with *ST_Slope_Flat* are 16 times as likely compared to *ST_Slope_Up*. 
 
 
 # Visualization of the model 
@@ -1096,6 +1101,7 @@ legend(160, 1,
        )
 ```
 
+When oldpeak values are held at the mean, the patients with down and flat slopes are classified as having a normal heart performance for any value of MaxHR. For patients with up slopes, the overall probability of having a heart disease increases, when the values of maximum heart rate detected are lowered below 80. 
 Computing the regression equations for each class of *ExerciseAngina* in logit terms.
 ```{r}
 #The reference group - ExerciseAngina_N
@@ -1156,6 +1162,8 @@ legend(160, 1,
        lwd=c(3,3), col=c("blue", "lightblue")
        )
 ```
+
+When oldpeak values are held at the mean, the patients with an exercise induced angina (yes) with MaxHR below 155 have a higher probability of having a heart disease. For no angina, the MaxHR detected above 80, means the lower probability of having a heart disease and less chance of being classified as problematic. 
 
 ## Oldpeak as x and MaxHR as mean
 
@@ -1249,6 +1257,7 @@ legend(3.5, 0.6,
        )
 ```
 
+When maximum heart rate values are held at the mean, the patients with down and flat slopes are classified as a normal heart for any value of oldpeak. For patients with up slopes, the probability of having a heart disease increases until it reaches a value of oldpeak of 2, when these patients are classified as having a heart disease in the model. 
 
 Computing the regression equations for each class of *ExerciseAngina* in logit terms.
 ```{r}
@@ -1311,6 +1320,7 @@ legend(3.5, 0.75,
        )
 ```
 
+When maximum heart rate values are held at the mean, the patients with exercise induced angina (yes), are classified as a problem case with lower values of oldpeak (around 0.2) compared to no angina (around 2). For both groups it is evident that the higher the oldpeak the higher the probability of having a heart disease. 
 
 # Answering the research question 
 
@@ -1332,7 +1342,7 @@ The addition of the interactions between *ST_Slope_Down* and *Oldpeak*, and *ST_
 
 The second barrier was about the main predictors. As mentioned before, our goal was to train a model that could predict well and not find causal relationships or the indispensable variables that predict heart disease. We also did not base our analysis in any hypothesis about the true causes of heart problems. Because of that, we may have left some important variable out of the model. This could be the case, for instance, of cholesterol. We left it out, because there were a lot of missing values and a weak correlation with the outcome.
   
-We also would like to mention the fact that the distribution of observations per class in categorical variables was not equal for some predictors. However, that might correspond with the rareness of types occurring in real life medical cases.  
+We also would like to mention the fact that the distribution of observations per class in categorical variables was not equal for some predictors. For the classification of logistic regression to be more accurate, the count per group should ideally be more balanced. However, that might correspond with the rareness of types occurring in real life medical cases.  Moreover, it is more important that the division in classes of the outcome group has a balanced number of observations. 
 
 The last limitation we faced was a technical issue. When making the model comparison, we would like to add an extra criterion, besides the BIC, AIC and change in the deviance. We planned on performing a cross-validation through CVbinary() in order to get an estimate of accuracy, but because of and unknown problem, we were only able to get a zero result, as follows: 
 
