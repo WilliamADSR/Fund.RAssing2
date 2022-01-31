@@ -927,6 +927,39 @@ print(auc@y.values)
 
 ```
 
+# Interpreting the final model
+```{r}
+fit10 <- glm(HeartDisease ~ ExerciseAngina_Y
+                           + MaxHR 
+                           + ST_Slope_Down
+                           + ST_Slope_Flat
+                           + Oldpeak
+                           + ST_Slope_Down * Oldpeak
+                           + ST_Slope_Flat * Oldpeak,
+              data = dummy_heart, 
+              family = "binomial")
+
+summary(fit10)
+```
+[Interpretation coefficients in log odds]
+
+The coefficients expressed in odds ratio and given confidence interval of 95%.
+```{r, message=FALSE}
+exp(cbind(OddsRatio = coef(fit10), confint(fit10)))
+```
+
+[Interpretation odds ratio]
+
+Predicted probability of heart disease at each value of *ExerciseAngina* and *ST_Slope* holding *MaxHR* and *Oldpeak* at their means. -> Can't figure out the code for this one: https://stats.oarc.ucla.edu/r/dae/logit-regression/
+```{r}
+#heartp <- with(dummy_heart, data_frame(MH = mean(MaxHR), OP = mean(Oldpeak), EAy = factor(ExerciseAngina_Y), STd = factor(ST_Slope_Down), STf = factor(ST_Slope_Flat)))
+
+#heartp$Probability <- predict(fit10, newdata = heartp, type = "response")
+
+#heartp
+```
+
+
 # Visualization of the model 
 
 To visualise the probability of heart disease the regression coefficients in terms of *log odds*, will be exponentiated to *odds ratios* and then transformed into *probabilities*. The code for the plots is derived from R Club (2016). 
@@ -1257,76 +1290,6 @@ legend(3.5, 0.75,
        )
 ```
 
-
-## Alternative visualisation
-
-This visualisation which Kyle used is not giving flat lines for our regression. 
-### Augment the data with fitted values from *fit10*
-```{r}
-tmp <- predict(fit10, type = "link", se.fit = TRUE)
-dummy_heart$eta <- tmp$fit
-dummy_heart$se <- tmp$se.fit
-dummy_heart$pi <- plogis(tmp$fit)
-
-dummy_heart %<>%
-  mutate(etaLower = eta - 1.96 * se,
-         etaUpper = eta + 1.96 * se,
-         piLower = plogis(etaLower),
-         piUpper = plogis(etaUpper)
-         )
-```
-
-### Logit of the *fit10*
-```{r}
-ggplot(dummy_heart, aes(x = MaxHR, y = eta)) +
-  geom_line(aes(color = ST_Slope), lwd = 1) +
-  geom_ribbon(aes(ymin = etaLower, ymax = etaUpper, fill = ST_Slope), alpha = 0.2) +
-  ylab("Logit of Heart Disease") +
-  facet_wrap(vars(ExerciseAngina))
-```
-
-
-### Probability of *fit10*
-```{r}
-ggplot(dummy_heart, aes(x = Oldpeak, y = pi)) + 
-  geom_ribbon(aes(ymin = piLower, ymax = piUpper, fill = ExerciseAngina), alpha = 0.2) +
-  geom_line(aes(color = ExerciseAngina), lwd = 1) + 
-  ylab("Probability of Survival") +
-  facet_wrap(vars(ST_Slope))
-```
-
-
-# Interpreting the final model
-```{r}
-fit10 <- glm(HeartDisease ~ ExerciseAngina_Y
-                           + MaxHR 
-                           + ST_Slope_Down
-                           + ST_Slope_Flat
-                           + Oldpeak
-                           + ST_Slope_Down * Oldpeak
-                           + ST_Slope_Flat * Oldpeak,
-              data = dummy_heart, 
-              family = "binomial")
-
-summary(fit10)
-```
-[Interpretation coefficients in log odds]
-
-The coefficients expressed in odds ratio and given confidence interval of 95%.
-```{r, message=FALSE}
-exp(cbind(OddsRatio = coef(fit10), confint(fit10)))
-```
-
-[Interpretation odds ratio]
-
-Predicted probability of heart disease at each value of *ExerciseAngina* and *ST_Slope* holding *MaxHR* and *Oldpeak* at their means. -> Can't figure out the code for this one: https://stats.oarc.ucla.edu/r/dae/logit-regression/
-```{r}
-#heartp <- with(dummy_heart, data_frame(MH = mean(MaxHR), OP = mean(Oldpeak), EAy = factor(ExerciseAngina_Y), STd = factor(ST_Slope_Down), STf = factor(ST_Slope_Flat)))
-
-#heartp$Probability <- predict(fit10, newdata = heartp, type = "response")
-
-#heartp
-```
 
 # Answering the research question 
 
