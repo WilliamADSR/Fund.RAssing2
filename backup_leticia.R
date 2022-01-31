@@ -101,3 +101,69 @@ c(fit3 = cross3$acc.cv, fit5 = cross5$acc.cv, fit6 = cross6$acc.cv,
   fit9 = cross9$acc.cv, fit10 = cross10$acc.cv, 
   fit11 = cross11$acc.cv)
 ```
+
+
+
+
+
+
+
+
+set.seed(42)
+cross1 <- CVbinary(fit1, nfolds = 10)
+
+
+set.seed(42)
+cross2 <- CVbinary(fit2, nfolds = 10)
+
+
+set.seed(42)
+cross3 <- CVbinary(fit3, nfolds = 10)
+
+
+set.seed(42)
+cross4 <- CVbinary(fit4, nfolds = 10)
+
+c(fit1 = cross1$acc.cv, fit2 = cross2$acc.cv, fit3 = cross3$acc.cv, fit4 = cross4$acc.cv)
+
+
+
+
+
+set.seed(42)
+cross3 <- CVbinary(fit3, nfolds = 10)
+
+
+
+set.seed(42)
+cross5 <- CVbinary(fit5, nfolds = 10)
+
+
+set.seed(42)
+cross6 <- CVbinary(fit6, nfolds = 10)
+
+
+set.seed(42)
+cross7 <- CVbinary(fit7, nfolds = 10)
+
+
+set.seed(42)
+cross8 <- CVbinary(fit8, nfolds = 10)
+
+
+set.seed(42)
+cross9 <- CVbinary(fit9, nfolds = 10)
+
+
+set.seed(42)
+cross10 <- CVbinary(fit10, nfolds = 10)
+
+
+set.seed(42)
+cross11 <- CVbinary(fit11, nfolds = 10)
+
+
+c(fit3 = cross3$acc.cv, fit5 = cross5$acc.cv, fit6 = cross6$acc.cv, 
+  fit7 = cross7$acc.cv, fit8 = cross8$acc.cv, 
+  fit9 = cross9$acc.cv, fit10 = cross10$acc.cv, 
+  fit11 = cross11$acc.cv)

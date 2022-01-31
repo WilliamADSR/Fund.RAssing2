@@ -39,8 +39,11 @@ library(ROCR)
 ```
 
 # Research question 
-As we already mentioned, our goal is to make accurate predictions for new patients’ data. Therefore we tend not to focus that much on inference. We will split our data into training data and testing data. We will build our model in the training data and then test our model / make predictions in the testing data. When interpreting output, we will work with a significance level of alpha 5% (p < 0.05) and a confidence interval (CI) of 95%. 
-In this assignment we will do an exploratory analysis on the variables that could predict heart disease. Consequently, we will not work with hypothesis. Since we will try to build a model by exploratory means, our research question states:
+As we already mentioned, our goal is to make accurate predictions for new patients’ data. Therefore we tend not to focus that much on inference. We will split our data into training data and testing data. We will build our model in the training data and then test our model / make predictions in the testing data. When interpreting output, we will work with a significance level of alpha 5% (p < 0.05) and a confidence interval (CI) of 95%.  
+
+In this assignment we will do an exploratory analysis on the variables that could predict heart disease.  
+
+Consequently, we will not work with hypothesis. Since we will try to build a model by exploratory means, our research question states:  
 
 When using exploratory data analysis, what variables seem to be influential predicting heart disease? 
 
@@ -489,7 +492,7 @@ train_heart %$%
 
 ## Summing up correlation results
 
-After the exploration made above, we concluded that *ExerciseAngina*, *ST_Slope*, *MaxHR*, *Oldpeak*, *Age* and *MaxHR* are the variables that show strongest correlation with our outcome variable, *HeartDisease*. Therefore, we are going to look for the best model from these variables. 
+After the exploration made above, we concluded that *ExerciseAngina*, *ST_Slope*, *MaxHR*, *Oldpeak* and *Age* are the variables that show strongest correlation with our outcome variable, *HeartDisease*. Therefore, we are going to look for the best model from these variables. 
 
 # Dummy codes
 
@@ -514,6 +517,7 @@ head(dummy_heart) %>%
   knitr::kable(format = "markdown", digits= 1, padding = 30, align = 'c')
 ```
 We will treat *ExerciseAgina_N* (no for exercise angina) as the reference group and, therefore, only the variable *ExerciseAngina_Y* (yes for exercise angina) will be included in the model, as the focal group.  
+
 In the case of *ST_Slope*, *ST_Slope_Up* will be the reference group and, consequently, only *ST_Slope_Down* and *ST_Slope_Flat* will ne included in the model. 
 
 
@@ -640,7 +644,9 @@ summary(fit4)
 
 We will first test the change in deviance in order to choose the best model. As soon as we are talking about deviance, we should choose the model that has the smallest result for the residual deviance.  
 When we use the function anova, we compare the change between **fit1** and **fit2**; then between **fit2** and **fit3**; and lastly, between **fit3** and **fit4**.   
+
 The improvement is clear until **fit3**, when the deviance decreases significantly. **Fit4** shows a small decrease in the deviance, but it is not significant (p-value = 0.201).  
+
 By the criterion of parsimony, it is not worth adding complexity to the model, if the decrease in the deviance is not significant. *Age* should not be added and, therefore, *fit3* is the best for now. 
 
 ```{r}
@@ -651,6 +657,7 @@ anova(fit1, fit2, fit3, fit4, test = "Chisq")
 
 Now we will compare the model by means of information criteria. These measurements penalize the addition of new predictors. The best model is the one that shows a smaller number for AIC and BIC.  
 The output bellow shows that **fit2** has an improvement compared to **fit1** as well as *fit3* presents an improvement compared to *fit2*.  
+
 AIC, however, increases for *fit4*, confirming that *Age* is not worth being added.
 
 ```{r}
@@ -783,6 +790,7 @@ Now we trained the models with interaction terms, we will make the comparison.
 ## Change in deviance
 
 We will compare the *fit3*, the best additive model, with the ones with interaction. The output shows that the change in the variance for models *fit3*, *fit5*, *fit6*, *fit7*, *fit8* and *fit9* are all between 616 and 620. Sometimes it goes up and then down, but they don't leave this range.   
+
 However, the residual deviance of *fit10* drop to  602.47 and it is significant (p-value = 2.369e-05). *Fit11*, the one with all interaction terms, shows a small improvement in the deviance (594.26), but it is not significant (p-value = 0.314). Due to the parsimony criterion, we will consider *fit10* the best model according to the change in deviance criterion.  
 
 ```{r}
@@ -1302,8 +1310,73 @@ legend(3.5, 0.75,
 
 # Answering the research question 
 
-# Discussion & Limitations
-The distribution of observations per class in categorical variables was not equal for some predictors. However, that might correspond with the rareness of types occurring in real life medical cases. 
+# Limitations
+
+In our last topic, we will talk about the limitations faced during the development of this assignment. The first one to mention is our limitation to interpret the interaction added in our best model *fit10*. 
+
+The addition of the interactions between *ST_Slope_Down* and *Oldpeak*, and *ST_Slope_Flat* and *Oldpeak* was worth due to the improvement in the performance of the model, but it was random and not based on any hypothesis about a moderation. Because of that, we are not allowed to say which of the variables (*ST_slope* and *Oldpeak*) is the moderator and which is the focal predictor. It would not be ethical to look for a hypothesis after finding an improvement in the model, so we will leave it for other researchers to dedicate themselves to reflect on the moderation between the two predictors. 
+                           
+
+```{r error = TRUE}
+
+# Comparing additive models
+
+# Result for fit1
+set.seed(42)
+cross1 <- CVbinary(fit1, nfolds = 10)
+
+# Result for fit2
+set.seed(42)
+cross2 <- CVbinary(fit2, nfolds = 10)
+
+# Result for fit 3
+set.seed(42)
+cross3 <- CVbinary(fit3, nfolds = 10)
+
+# Result for fit 4
+set.seed(42)
+cross4 <- CVbinary(fit4, nfolds = 10)
+
+# Comparing the additive models 1, 2, 3 and 4
+c(fit1 = cross1$acc.cv, fit2 = cross2$acc.cv, fit3 = cross3$acc.cv, fit4 = cross4$acc.cv)
+
+# Now, comparing the moderated models
+
+# Result for fit 5
+set.seed(42)
+cross5 <- CVbinary(fit5, nfolds = 10)
+
+# Result for fit 6
+set.seed(42)
+cross6 <- CVbinary(fit6, nfolds = 10)
+
+# Result for fit 7
+set.seed(42)
+cross7 <- CVbinary(fit7, nfolds = 10)
+
+# Result for fit 8
+set.seed(42)
+cross8 <- CVbinary(fit8, nfolds = 10)
+
+# Result for fit 9
+set.seed(42)
+cross9 <- CVbinary(fit9, nfolds = 10)
+
+# Result for fit 10
+set.seed(42)
+cross10 <- CVbinary(fit10, nfolds = 10)
+
+# Result for fit 11
+set.seed(42)
+cross11 <- CVbinary(fit11, nfolds = 10)
+
+# Comparing the models 3, 5, 6, 7, 8, 9, 10 and 11
+c(fit3 = cross3$acc.cv, fit5 = cross5$acc.cv, fit6 = cross6$acc.cv, 
+  fit7 = cross7$acc.cv, fit8 = cross8$acc.cv, 
+  fit9 = cross9$acc.cv, fit10 = cross10$acc.cv, 
+  fit11 = cross11$acc.cv)
+
+```
 
 # Sources
 
