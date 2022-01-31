@@ -15,6 +15,7 @@ output:
 
 # Context 
 The World Health Organization (WHO) estimated that 17.9 million people die each year from cardiovascular diseases (CVDs), globally. That is an estimated 32% of all deaths worldwide. Heart failure is most commonly caused by CVDs. Some people have inherited cardiac conditions but there are several behavioural factors that increase risk of heart failure: unhealthy diet, drug use, lack of exercise. Those behaviours can lead to individual raised cholesterol, blood pressure, etc. This dataset holds 11 variables that may predict heart failure, on which we will elaborate later on. In this assignment we will try to develop a model that overall, is accurate in predicting heart failure (or not) with new patients’ data. One could understand that such a model has a worldwide relevance.
+
 # Packages
 ```{r libraries, warning = FALSE, message = FALSE}
 library(ggplot2)
@@ -135,6 +136,8 @@ Apparently, none of the variables have missing values, but we will get more insi
 summary(heart)
 ```
 This dataset contains information about 918 people of which 725 are males. What strikes is that resting blood pressure and cholesterol have some 0 values. What’s great is that our outcome variable “heart disease”, is nearly 50/50 for Norm and Prob. Finally, zero values in resting blood pressure and cholesterol may be missing values and looking at the interquartile range from max heart rate there may be some outliers between the min and 1st quartile.
+Apparently, none of the variables have missing values, but we will get more insights in the descriptive analysis.
+
 
 ```{r}
 str(heart)
@@ -142,61 +145,34 @@ str(heart)
 
 # Descriptive analysis
 
-Here we will do some descriptive analysis to search for outliers and check the distributions.
+Now that we know what the variables consist of and the meaning behind them we will be looking some analysis on the distribution of the observations for each variable. 
 
 ```{r}
 Hist_age <- hist(heart$Age)
 ```
 
-This is not working. Check why.
-```{r}
-#Box_age <- boxplot(heart$Age) + title(main = "Distribution of age", ylab = "Age in years")
-```
 
-Comment here.
+```{r}
+Box_age <- boxplot(heart$Age, main = "Distribution of age", ylab = "Age in years")
+```
 
 ```{r}
 median(heart$Age)
 ```
 
-Age is distributed normally. The youngest observations is 28 years old and the oldest observation is 77 years old. The median of this data set is 54.
+Age is distributed normally. The youngest observations is 28 years old and the oldest observation is 77 years old. The median of this data set is 54 and there are no outliers.
 
-```{r}
-Hist1_chol <- hist(heart$Cholesterol)
-```
-
-The Cholesterol variable has 172 observations of the number 0. It is not possible that a person has zero cholesterol level. Therefore, we will consider this information as error and, consequently, missing values.
-In the next topic, we will make a decision about how to deal with that.
-
-
-```{r}
-#Box_chol <- boxplot(heart$Cholesterol) 
-#            + title(main = "Distribution of cholesterol levels", 
-#                    ylab = "Cholesterol levels (mm / dl)")
-```
-Comment here.
-
-```{r}
-min(heart$Cholesterol)
-max(heart$Cholesterol)
-median(heart$Cholesterol)
-```
-
-Here we see that the distribution of cholesterol levels has several outliers. The median is a cholesterol level of 237 which is within the range of a healthy level. a The lowest level of cholesterol is 85 and the highest level of cholesterol is 603. When checking assumptions we will see whether we need to exclude more observations due to abnormal cholesterol levels.
 
 ```{r}
 Hist_BPrest <- hist(heart$RestingBP)
 ```
 
-Comment here.
 
 ```{r}
-#Box_BPrest <- boxplot(heart$RestingBP) 
-#                 + title(main = "Distribution of resting blood pressure levels", 
-#                         ylab = "Resting blood pressure levels (mmHg)")
+Box_BPrest <- boxplot(heart$RestingBP, main = "Distribution of resting blood pressure levels", ylab = "Resting blood pressure levels (mmHg)")
 ```
 
-Comment here.
+
 
 ```{r}
 median(heart$RestingBP)
@@ -206,20 +182,33 @@ max(heart$RestingBP)
 
 Most of the observations have a healthy resting blood pressure, which the median of 130 also represents. There are some outliers past the maximum of the boxplot, the highest observations has a resting blood pressure of 200 which is very dangerous.
 
-## Missing values for cholesterol
+```{r}
+Hist1_chol <- hist(heart$Cholesterol)
+```
 
-When inspecting the variable cholesterol we observed 172 missing values. Deleting these observations would mean a loss of nearly 20% for our data set. Therefore we first checked the correlation for cholesterol without the zeros and concluded nearly no relation between cholesterol and heart disease. Consequently, we decided to completely eliminate the variable cholesterol to save our precious data. 
+```{r}
+Box_chol <- boxplot(heart$Age, main = "Distribution of cholesterol levels", ylab = "Cholesterol levels (mm / dl)")
+```
+
+
+```{r}
+min(heart$Cholesterol)
+max(heart$Cholesterol)
+median(heart$Cholesterol)
+```
+
+The Cholesterol variable has 172 observations of the number 0. It is not possible that a person has zero cholesterol level. Therefore, we will consider this information as error and, consequently, missing values.
+
+Furthermore we see that the distribution of cholesterol levels has several outliers. The median is a cholesterol level of 237 which is within the range of a healthy level. a The lowest level of cholesterol is 85 and the highest level of cholesterol is 603. 
+
+Due to 172 observations of the dataset (almost 20%) having the value of 0 for the variable cholesterol, it is not possible to simply remove those observations from the dataset. It would be better to entirely remove the variable then, but it is still yet uncertain whether cholesterol is related to heart disease. To determine that we need to see if cholestorol has any correlation to heart disease after removing the 0 observations.
 
 
 ```{r}
 # Excluding the 0 values
 heart_cholesterol <- heart %>% 
                      filter(!Cholesterol == 0)
-```
 
-Correlation
-
-```{r}
 heart_cholesterol %>%
   select(HeartDisease, Cholesterol) %>% 
   correlation(include_factors = TRUE, method = "auto") %>%
@@ -232,12 +221,38 @@ heart_cholesterol %>%
        type="tile",
        )
 ```
-Very weak correlation. Decision: exclude the variable.
+
+From this we can determine that cholesterol has a very weak correlation. So to we have come to the decision to exclude the cholesterol variable.
 
 ```{r}
 Clean_Heart <- heart %>% 
                select(!Cholesterol)
 ```
+
+```{r}
+hist_MaxHR <- hist(heart$MaxHR)
+
+Box_maxhr <- boxplot(heart$MaxHR, main = "Distribution of maximum heartrate", ylab = "Heartrate in bpm")
+
+min(heart$MaxHR)
+max(heart$MaxHR)
+median(heart$MaxHR)
+```
+
+Heartrate has a normal distribution and a couple outliers on the lower side, but nothing that doesn't fit the variable. The median maximum heart rate is 138 bpm which is average and within the norms for the median age of the observant. The highest is 202, which is definitely on the higher side and not healthy and the lowest is 60, which also isn't very healthy.
+
+```{r}
+hist_oldPeak <- hist(heart$Oldpeak)
+
+Box_oldPeak <- boxplot(heart$Oldpeak, main = "Distribution of ST segment depression", ylab = "ST depression size")
+
+min(heart$Oldpeak)
+max(heart$Oldpeak)
+median(heart$Oldpeak)
+```
+
+
+Heartrate has a left-skewed distribution and a couple outliers on the higher side, but nothing that doesn't fit the variable. The median ST depression is  0.6 , the highest is 6.2 which is very high and caused by an outlier and the lowest is -2.6 which is quite low. The ST depression being to high or low can be indicators of anginaor other heart illnesses.
 
 # Split the data: train and test
 In the training data set 80% (p=0.8) of the rows were generated as a new sample. Out of 735 observations 45% has normal heart performance (328 rows) and 55% has heart problems (407 rows). Therefore, the training data has approximately equal distribution of classes within response variable. 
@@ -789,16 +804,28 @@ BIC(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11)
 ```
 
 # Checking assumptions 
+In order to assess whether this model provides a good fit to the data, we must check the residual plots. The coefficient estimated can turn out biased despite the relatively high Multiple
 
 ## Residuals vs Fitted model
+```{r}
+plot(fit10,1)
+```
 
-## Normal Q-Q plot
+Looking at the Residuals vs Fit plot, the data follows a linear trend. Residuals do seem to have a pattern, but that pattern of clusters is natural with a pearson plot. So this satisfies the assumptions that the predictors are linearly related.
 
-## Scale-Location 
 
 ## Cook's distance
+```{r}
+plot(fit10,4)
+```
+According to the Cook's distance plot there are three cases which are potential influential outliers: 270, 407 and especially 564. The Residuals vs Leverage plot will provide more detail on these observations.
+
 
 ## Residuals vs Leverage
+```{r}
+plot(fit10,5)
+```
+There are some cases which have high leverage such as 270 or 565 or have high residuals, but thankfully those cases don't have both. This means that there aren't any significant observations with both high residuals and leverage, so there are not highly influential cases. 
 
 ## Influential cases
 
