@@ -662,7 +662,8 @@ anova(fit1, fit2, fit3, fit4, test = "Chisq")
 ## Information criteria
 
 Now we will compare the model by means of information criteria. These measurements penalize the addition of new predictors. The best model is the one that shows a smaller number for AIC and BIC.  
-The output bellow shows that **fit2** has an improvement compared to **fit1** as well as *fit3* presents an improvement compared to *fit2*.  
+
+The output bellow shows that **fit2** has an improvement compared to **fit1** as well as *fit3* presents an improvement compared to *fit2*.    
 
 AIC, however, increases for *fit4*, confirming that *Age* is not worth being added.
 
@@ -676,7 +677,7 @@ BIC(fit1, fit2, fit3, fit4)
 
 # Moderated models 
 
-After choosing **fit3** as the best additive model, we will add interactions to try to improve it. As it was done before, we will train all the models before, analyse the p-values and, later on, make the model comparison.  
+After choosing **fit3** as the best additive model, we will add interactions to try to improve it. As it was done before, we will train all the models before, analyse the p-values and, later on, make the model comparison.    
 
 We will start with the interaction between the two first predictors, *ExerciseAngina_Y* and *MaxHR*. 
 The output bellow shows that after adding the new term, the predictor *ExerciseAngina_T* is no longer significant (p-value = 0.102). The interaction *ExerciseAngina_Y* and *MaxHR* is also not significant (p-value: 0.511).
@@ -795,7 +796,7 @@ Now we trained the models with interaction terms, we will make the comparison.
 
 ## Change in deviance
 
-We will compare the *fit3*, the best additive model, with the ones with interaction. The output shows that the change in the variance for models *fit3*, *fit5*, *fit6*, *fit7*, *fit8* and *fit9* are all between 616 and 620. Sometimes it goes up and then down, but they don't leave this range.   
+We will compare the *fit3*, the best additive model, with the ones with interaction. The output shows that the change in the variance for models *fit3*, *fit5*, *fit6*, *fit7*, *fit8* and *fit9* are all between 616 and 620. Sometimes it goes up and then down, but they don't leave this range.     
 
 However, the residual deviance of *fit10* drop to  602.47 and it is significant (p-value = 2.369e-05). *Fit11*, the one with all interaction terms, shows a small improvement in the deviance (594.26), but it is not significant (p-value = 0.314). Due to the parsimony criterion, we will consider *fit10* the best model according to the change in deviance criterion.  
 
@@ -811,6 +812,7 @@ According to AIC, *fit10* is also the preferred model, because It has the smalle
 AIC(fit3, fit5, fit6, fit7, fit8, fit9, fit10, fit11)
 ```
 BIC presents the same analysis: *fit10* has the smallest number (655.27) and is, therefore, the favorite model.  
+
 It is interesting to notice that BIC is more conservative than AIC. *Fit11*, than is the most complex one, shows a considerable increase in its BIC (693.25), even stronger than the rise we see in AIC. 
 
 ```{r}
