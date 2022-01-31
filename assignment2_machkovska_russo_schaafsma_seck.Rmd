@@ -37,7 +37,7 @@ library(pROC)
 library(ROCR)
 ```
 
-# Research question and relevance 
+# Research question 
 
 - tell that we are doing an exploratory analysis about the variables that could predict better heart disease. Therefore, we are not working with hypothesis 
 
@@ -45,7 +45,7 @@ library(ROCR)
 
 - our goal is to make good predictions and not focus in inference. Mainly see how our model works in new data. We are will do it testing predictions in a test set that we will create in the beginning of the analysis.  
 
-# Loading the Dataset
+# Loading the dataset
 The data set is derived from Kaggle and is uploaded by fedesoriano (2021). With the following script a distinction is made between continuous (numeric) and categorical variables which are transformed to factor type data. 
 ```{r}
 heart <- read_csv("heart.csv", 
@@ -122,7 +122,7 @@ This data set holds 12 variables of which **Heart disease** is our dichotomous o
 
 **Variable 12**: *HeartDisease*.  It's a dichotomous variable and our outcome variable is this assignment. 0 means 'no heart disease / normal' 1 means 'heart disease'
 
-# Inspecting the dataset and cleaning up
+# Inspecting and cleaning up
 
 add information like:
 * number of observations
@@ -244,7 +244,7 @@ Clean_Heart <- heart %>%
                select(!Cholesterol)
 ```
 
-# Split the data into training and test samples
+# Split the data: train and test
 In the training data set 80% (p=0.8) of the rows were generated as a new sample. Out of 735 observations 45% has normal heart performance (328 rows) and 55% has heart problems (407 rows). Therefore, the training data has approximately equal distribution of classes within response variable. 
 ```{r}
 set.seed(42)
@@ -507,7 +507,7 @@ We will treat *ExerciseAgina_N* (no for exercise angina) as the reference group 
 In the case of *ST_Slope*, *ST_Slope_Up* will be the reference group and, consequently, only *ST_Slope_Down* and *ST_Slope_Flat* will ne included in the model. 
 
 
-# Model building - additive
+# Additive models 
 
 Starting with only one predictor, to explore how the variables behave in a simple model. 
 
@@ -624,7 +624,7 @@ fit4 <- glm(HeartDisease ~ ExerciseAngina_Y
 summary(fit4)
 ```
 
-# Model comparison - additive
+# Additive models comparison 
 
 ## Change in deviance
 
@@ -651,7 +651,7 @@ BIC follows the same narrative as AIC and, therefore, *fit3* is the best model.
 BIC(fit1, fit2, fit3, fit4)
 ```
 
-# Model building - interaction
+# Moderated models 
 
 After choosing **fit3** as the best additive model, we will add interactions to try to improve it. As it was done before, we will train all the models before, analyse the p-values and, later on, make the model comparison.  
 
@@ -766,7 +766,7 @@ fit11 <- glm(HeartDisease ~ ExerciseAngina_Y
 summary(fit11)
 ```
 
-# Model comparison - interaction 
+# Moderated models comparison 
 
 Now we trained the models with interaction terms, we will make the comparison.  
 
@@ -883,9 +883,7 @@ A good model has a high accuracy and low error rate.
 
 ```{r}
 
-#pred <- prediction(test_heart_dummy$predictions, test_heart_dummy$labels)
-#perf <- performance(pred,"tpr","fpr")
-#plot(perf,colorize=TRUE)
+
 
 
 
