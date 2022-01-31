@@ -14,7 +14,7 @@ output:
 ---
 
 # Context 
-
+The World Health Organization (WHO) estimated that 17.9 million people die each year from cardiovascular diseases (CVDs), globally. That is an estimated 32% of all deaths worldwide. Heart failure is most commonly caused by CVDs. Some people have inherited cardiac conditions but there are several behavioural factors that increase risk of heart failure: unhealthy diet, drug use, lack of exercise. Those behaviours can lead to individual raised cholesterol, blood pressure, etc. This dataset holds 11 variables that may predict heart failure, on which we will elaborate later on. In this assignment we will try to develop a model that overall, is accurate in predicting heart failure (or not) with new patients’ data. One could understand that such a model has a worldwide relevance.
 # Packages
 ```{r libraries, warning = FALSE, message = FALSE}
 library(ggplot2)
@@ -38,12 +38,10 @@ library(ROCR)
 ```
 
 # Research question 
+As we already mentioned, our goal is to make accurate predictions for new patients’ data. Therefore we tend not to focus that much on inference. We will split our data into training data and testing data. We will build our model in the training data and then test our model / make predictions in the testing data. When interpreting output, we will work with a significance level of alpha 5% (p < 0.05) and a confidence interval (CI) of 95%. 
+In this assignment we will do an exploratory analysis on the variables that could predict heart disease. Consequently, we will not work with hypothesis. Since we will try to build a model by exploratory means, our research question states:
 
-- tell that we are doing an exploratory analysis about the variables that could predict better heart disease. Therefore, we are not working with hypothesis 
-
-- when running test statistics, we will work with an alpha of 0.05 and confidence of 95%.
-
-- our goal is to make good predictions and not focus in inference. Mainly see how our model works in new data. We are will do it testing predictions in a test set that we will create in the beginning of the analysis.  
+When using exploratory data analysis, what variables seem to be influential predicting heart disease? 
 
 # Loading the dataset
 The data set is derived from Kaggle and is uploaded by fedesoriano (2021). With the following script a distinction is made between continuous (numeric) and categorical variables which are transformed to factor type data. 
@@ -136,7 +134,7 @@ Apparently, none of the variables have missing values, but we will get more insi
 ```{r}
 summary(heart)
 ```
-Comment here
+This dataset contains information about 918 people of which 725 are males. What strikes is that resting blood pressure and cholesterol have some 0 values. What’s great is that our outcome variable “heart disease”, is nearly 50/50 for Norm and Prob. Finally, zero values in resting blood pressure and cholesterol may be missing values and looking at the interquartile range from max heart rate there may be some outliers between the min and 1st quartile.
 
 ```{r}
 str(heart)
@@ -144,7 +142,7 @@ str(heart)
 
 # Descriptive analysis
 
-Comment here.
+Here we will do some descriptive analysis to search for outliers and check the distributions.
 
 ```{r}
 Hist_age <- hist(heart$Age)
@@ -210,10 +208,7 @@ Most of the observations have a healthy resting blood pressure, which the median
 
 ## Missing values for cholesterol
 
--decision if we delete missing values or delete the variable
-- 172 is almost 20% of the dataset (918 observations)
--run a correlation here to see if cholesterol is related to heart disease 
--argument that the best choice was to delete the variable
+When inspecting the variable cholesterol we observed 172 missing values. Deleting these observations would mean a loss of nearly 20% for our data set. Therefore we first checked the correlation for cholesterol without the zeros and concluded nearly no relation between cholesterol and heart disease. Consequently, we decided to completely eliminate the variable cholesterol to save our precious data. 
 
 
 ```{r}
