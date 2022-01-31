@@ -896,7 +896,10 @@ plot(roc_curve, colorize = T, lwd = 2)
 abline(a = 0, b = 1)
 ```
 
+The area under the curve is 0.913.
+
 ```{r}
+# Getting the values for the area under the curve
 auc <- performance(pred, measure = "auc")
 print(auc@y.values)
 
@@ -1309,7 +1312,10 @@ Predicted probability of heart disease at each value of *ExerciseAngina* and *ST
 The distribution of observations per class in categorical variables was not equal for some predictors. However, that might correspond with the rareness of types occurring in real life medical cases. 
 
 # Sources
-fedesoriano. (2021, September). *Heart Failure Prediction Dataset.* [Data set] Retrieved from https://www.kaggle.com/fedesoriano/heart-failure-prediction.
+
+Beerenwinkel, N., Ernst, F., Lengauer, T., Sander, O., Sing, T., & Unterthiner, T. (2020). *Package ‘ROCR’.* Retrieved from https://cran.r-project.org/web/packages/ROCR/ROCR.pdf 
+
+Fedesoriano. (2021, September). *Heart Failure Prediction Dataset.* [Data set] Retrieved from https://www.kaggle.com/fedesoriano/heart-failure-prediction.
 
 Hastie, T., James, G., Tibshirani, R. & Witten, D. (2021). *An Introduction to Statistical Learning with Applications in R*. (2nd edition). Springer. Retrieved from https://hastie.su.domains/ISLR2/ISLRv2_website.pdf
 
@@ -1323,10 +1329,12 @@ Makowski, D., Ben-Shachar, M. S., Patil, I., & Lüdecke, D. (2019). Methods and 
 
 R Club (2016, April 5). *Plotting your logistic regression models.* [Blog] Retrieved from https://blogs.uoregon.edu/rclub/2016/04/05/plotting-your-logistic-regression-models/. 
 
-Rousselet, G. A., & Wilcox, R. R. (2020). Reaction times and other skewed distributions: problems with the mean and the median. *Meta-Psychology, 4*. 
-https://doi.org/10.15626/MP.2019.1630
+Rousselet, G. A., & Wilcox, R. R. (2020). Reaction times and other skewed distributions: problems with the mean and the median. *Meta-Psychology, 4*. Retrieved from https://doi.org/10.15626/MP.2019.1630
 
-Svetunkov, I. & Yves, R. (2022). *Package ‘greybox’.* Retrieved from https://cran.r-project.org/web/packages/greybox/greybox.pdf. 
+Svetunkov, I. & Yves, R. (2022). *Package ‘greybox’.* Retrieved from https://cran.r-project.org/web/packages/greybox/greybox.pdf.
+
+
+
 
 
 
