@@ -903,6 +903,13 @@ A good model has a high accuracy and low error rate.
 
 ## ROC Curve
 
+After getting all these measures above, we can use ROC (Receiver Operating Characteristic) Curve to visualize the performance of our binary classifier.
+
+
+The curve is plotted with the false positive rate on x-axis and true positive rate on y-axis for all possible thresholds. Both false positive rate  and true positive rate vary from 0 to 1.  
+
+We will analyse the ROC curve in our test set to avoid bias and overfit that we could get if we would have analysed the curve using our training set. 
+
 ```{r}
 
 # Duplicate HeartDisease column
@@ -918,7 +925,9 @@ plot(roc_curve, colorize = T, lwd = 2)
 abline(a = 0, b = 1)
 ```
 
-The area under the curve is 0.913.
+The AUC (area under the curve) is a good way of interpreting the graph. As the name suggest, it is about calculating the area that is under the ROC curve -in our case, the area between the colorful line and the x-axis. A bad result would be close to 0.5, exactly where the diagonal line crosses the chart. This result would mean a random prediction, similar to flipping a coin. A good result is as close to 1 as possible, when the ROC curve would reach the left upper corner of the graph.  
+
+As seen in the output bellow, the area under the curve in our chart is 0.913, meaning that we have a good classifier. 
 
 ```{r}
 # Getting the values for the area under the curve
