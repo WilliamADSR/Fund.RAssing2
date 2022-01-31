@@ -1313,6 +1313,7 @@ legend(3.5, 0.75,
 
 
 # Answering the research question 
+
 The research question that we tried to answer in this assignment, stated: **“When using exploratory data analysis, what variables seem to be influential predicting heart disease?”**
 
 Since the data set we used contained 11 variables influencing heart disease, we started by exploring correlations between the variables and heart disease. Considering the results from the correlation analysis we decided to try and build a best model with the following 5 variables: *ExcerciseAngina*, *ST_Slope*, *MaxHR*, *Oldpeak*, and *Age*.
@@ -1327,9 +1328,9 @@ Surprisingly, even though we did not include hypothesis in our study (as a resul
 
 In our last topic, we will talk about the limitations faced during the development of this assignment. The first one to mention is our limitation to interpret the interaction added in our best model *fit10*. 
 
-The addition of the interactions between *ST_Slope_Down* and *Oldpeak*, and *ST_Slope_Flat* and *Oldpeak* was worth due to the improvement in the performance of the model, but it was random and not based on any hypothesis about a moderation. Because of that, we are not allowed to say which of the variables (*ST_slope* and *Oldpeak*) is the moderator and which is the focal predictor. It would not be ethical to look for a hypothesis after finding an improvement in the model, so we will leave it for other researchers to dedicate themselves to reflect on the moderation between the two predictors.    
+The addition of the interactions between *ST_Slope_Down* and *Oldpeak*, and *ST_Slope_Flat* and *Oldpeak* was worth due to the improvement in the performance of the model, but it was random and not based on any hypothesis about a moderation. Because of that, we are not allowed to say which of the variables (*ST_slope* and *Oldpeak*) is the moderator and which is the focal predictor. It would not be ethical to look for a hypothesis after finding an improvement in the model, so we will leave it for other researchers to dedicate themselves to reflect on the moderation between the two predictors.   
 
-The second barrier was about the main predictor. As mentioned before, our goal was to train a model that could predict well and not find causal relationships or the indispensable variables that predict heart disease. We also did not base our analysis in any hypothesis about the true causes of heart problems. Because of that, we may have left some important variable out of the model. This could be the case, for instance, of cholesterol. we left it out, because there were a lot of missing values and a weak correlation with the predictor.   
+The second barrier was about the main predictors. As mentioned before, our goal was to train a model that could predict well and not find causal relationships or the indispensable variables that predict heart disease. We also did not base our analysis in any hypothesis about the true causes of heart problems. Because of that, we may have left some important variable out of the model. This could be the case, for instance, of cholesterol. We left it out, because there were a lot of missing values and a weak correlation with the outcome.
   
 We also would like to mention the fact that the distribution of observations per class in categorical variables was not equal for some predictors. However, that might correspond with the rareness of types occurring in real life medical cases.  
 
